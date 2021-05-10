@@ -1,44 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"gows/operators"
+	"io/ioutil"
+)
 
 func main() {
-	fmt.Println("Hello gows")
-}
+	data, err := ioutil.ReadFile("operator.json")
 
-type Operator interface {
-	Run()
-}
-
-type SparkOperator struct {
-	masterNodeIp string
-}
-
-func (s *SparkOperator) Run() {
-	fmt.Println("spark submit")
-}
-
-func NewSparkOperator() SparkOperator {
-	return SparkOperator{}
-}
-
-func NewBashOperator() *BashOperator {
-	return &BashOperator{}
-}
-
-type BashOperator struct {
-	scriptPath string
-}
-
-func (b *BashOperator) Run() {
-	fmt.Println("launch bash")
-}
-
-func OperatorFactory(operatorName string) (Operator, error) {
-	switch operatorName {
-	case "bash":
-		return NewBashOperator(), nil
-	default:
-		return nil, fmt.Errorf("BAD OPERATOR NAME")
+	if err != nil {
+		panic(err)
 	}
+
+	operator, _ := operators.NewOperator(data)
+
+	operator.RunTask()
 }

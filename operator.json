@@ -1,0 +1,6 @@
+{
+   "name":"bash",
+   "parameters":{
+      "path":"test.sh"
+   }
+}
