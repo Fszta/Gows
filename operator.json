@@ -1,6 +1,16 @@
 {
    "name":"bash",
    "parameters":{
-      "path":"test.sh"
+      "path":"test.sh",
+      "arguments":[
+        {
+           "arg":"-t",
+           "value":"1"
+        },
+        {
+           "arg":"-d",
+           "value":"detached"
+        }
+     ]
    }
 }

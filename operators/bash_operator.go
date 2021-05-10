@@ -7,24 +7,21 @@ import (
 )
 
 type BashOperator struct {
-	Path string `json:"path"`
+	Path      string `json:"path"`
+	Arguments []struct {
+		Arg   string `json:"arg"`
+		Value string `json:"value"`
+	} `json:"arguments"`
 }
 
-func GetBashOperator(operatorParameters []byte) *BashOperator {
+func NewBashOperator(operatorParameters []byte) *BashOperator {
 	var bash = BashOperator{}
 
 	err := json.Unmarshal(operatorParameters, &bash)
 	if err != nil {
 		panic(err)
 	}
-
 	return &bash
-}
-
-func NewBashOperator() *BashOperator {
-	return &BashOperator{
-		Path: "test.sh",
-	}
 }
 
 func (b *BashOperator) RunTask() {
@@ -36,17 +33,4 @@ func (b *BashOperator) RunTask() {
 		return
 	}
 	fmt.Println(string(stdout))
-}
-
-func (b *BashOperator) SetPath(path string) {
-	b.Path = path
-}
-
-type OperatorConfig interface {
-	SetConfig()
-}
-
-type BashConfig struct {
-	name  string
-	param string
 }
