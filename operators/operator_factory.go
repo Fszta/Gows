@@ -14,25 +14,11 @@ type Operator struct {
 	Parameters json.RawMessage `json:"parameters"`
 }
 
-func NewOperator(data []byte) (IOperator, error) {
-	operator := UnmarshalOperator(data)
-
-	switch operator.Name {
+func NewOperator(operatorName string) (IOperator, error) {
+	switch operatorName {
 	case "bash":
-		return NewBashOperator(operator.Parameters), nil
+		return NewBashOperator(), nil
 	default:
-		return nil, fmt.Errorf("OPERATOR %s DOESN'T EXISTS", operator.Name)
+		return nil, fmt.Errorf("OPERATOR %s DOESN'T EXISTS", operatorName)
 	}
-}
-
-func UnmarshalOperator(data []byte) Operator {
-	var taskConf = Operator{}
-
-	err := json.Unmarshal(data, &taskConf)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return taskConf
 }

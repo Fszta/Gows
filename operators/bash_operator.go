@@ -1,7 +1,6 @@
 package operators
 
 import (
-	"encoding/json"
 	"fmt"
 	"os/exec"
 )
@@ -14,14 +13,8 @@ type BashOperator struct {
 	} `json:"arguments"`
 }
 
-func NewBashOperator(operatorParameters []byte) *BashOperator {
-	var bash = BashOperator{}
-
-	err := json.Unmarshal(operatorParameters, &bash)
-	if err != nil {
-		panic(err)
-	}
-	return &bash
+func NewBashOperator() *BashOperator {
+	return &BashOperator{}
 }
 
 func (b *BashOperator) RunTask() {

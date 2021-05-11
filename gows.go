@@ -2,17 +2,13 @@ package main
 
 import (
 	"gows/operators"
-	"io/ioutil"
 )
 
 func main() {
-	data, err := ioutil.ReadFile("operator.json")
+	operator, err := operators.NewOperator("bash")
 
 	if err != nil {
 		panic(err)
 	}
-
-	operator, _ := operators.NewOperator(data)
-
 	operator.RunTask()
 }
