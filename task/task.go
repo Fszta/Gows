@@ -26,10 +26,11 @@ func CreateTask(operatorName string, taskName string) (*Task, error) {
 		operator: operator,
 		uuid:     taskUUID,
 		name:     taskName,
+		status:   "not started",
 	}, nil
 }
 
-func (t *Task) SetStatus(status string) {
+func (t *Task) UpdateStatus(status string) {
 	t.status = status
 }
 
