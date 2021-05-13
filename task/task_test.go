@@ -18,10 +18,10 @@ func TestCreateTask(t *testing.T) {
 	}
 }
 
-func TestSetStatus(t *testing.T) {
+func TestUpdateStatus(t *testing.T) {
 	task, _ := CreateTask("bash", "my_task")
 	status := "fail"
-	task.UpdateStatus(status)
+	task.updateStatus(status)
 
 	if task.status != status {
 		t.Errorf("The status was not set properly to status field of Task")
