@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var (
+const (
 	defaultStatus = "not started"
 	runningStatus = "running"
 	failStatus    = "fail"
@@ -61,4 +61,12 @@ func (t *Task) setLogs(logs string) {
 
 func (t *Task) GetLogs() string {
 	return t.logs
+}
+
+func (t *Task) GetUuid() uuid.UUID {
+	return t.uuid
+}
+
+func (t *Task) GetName() string {
+	return t.name
 }
