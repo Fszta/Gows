@@ -1,7 +1,6 @@
 package task
 
 import (
-	"fmt"
 	"gows/operators"
 
 	"github.com/google/uuid"
@@ -12,23 +11,28 @@ type Task struct {
 	uuid     uuid.UUID
 	name     string
 	status   string
+	logs     string
 }
 
-func CreateTask(operatorName string, taskName string) *Task {
+func CreateTask(operatorName string, taskName string) (*Task, error) {
 	taskUUID := uuid.New()
 	operator, err := operators.NewOperator(operatorName)
 
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 
 	return &Task{
 		operator: operator,
 		uuid:     taskUUID,
 		name:     taskName,
-	}
+	}, nil
 }
 
 func (t *Task) SetStatus(status string) {
 	t.status = status
+}
+
+func (t *Task) GetLogs() string {
+	return t.logs
 }
