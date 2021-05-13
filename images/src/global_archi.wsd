@@ -6,10 +6,14 @@ left to right direction
 
 package operators {
     interface Operator {
-        +RunTask()
+        +RunTask(): string
+	    +SetCmd(cmd string)
+	    +SetArguments(args []Argument)
     }
 
     class BashOperator {
+        +NewBashOperator()
+        +GetArgsToString()
     }
 
     class PythonOperator {
@@ -20,7 +24,6 @@ package operators {
 package parsers {
     interface ConfigParser {
         +CheckConfigValidity()
-        +
     }
     class BashParser {
 
@@ -32,12 +35,12 @@ package parsers {
 }
 
 class GowsDag {
-    +tasks: Array<Task>
+    +tasks: Map<String, Task>
 }
 
 class Task {
     +operator: Operator
-    +id: int
+    +id: String
     +name: String
     +status: String
     +CreateOperator(): Operator

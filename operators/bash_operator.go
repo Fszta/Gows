@@ -1,29 +1,56 @@
 package operators
 
 import (
+	"errors"
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
+type Argument struct {
+	Arg   string
+	Value string
+}
+
 type BashOperator struct {
-	Path      string `json:"path"`
-	Arguments []struct {
-		Arg   string `json:"arg"`
-		Value string `json:"value"`
-	} `json:"arguments"`
+	Cmd       string
+	Arguments []Argument
 }
 
 func NewBashOperator() *BashOperator {
 	return &BashOperator{}
 }
 
-func (b *BashOperator) RunTask() {
-	cmd := exec.Command("bash", b.Path)
+func (b *BashOperator) SetCmd(cmd string) {
+	b.Cmd = cmd
+}
+
+func (b *BashOperator) SetArguments(args []Argument) {
+	b.Arguments = args
+}
+
+func (b *BashOperator) GetArgsToString() string {
+	var argsString strings.Builder
+	for _, arg := range b.Arguments {
+		if arg.Arg != "" {
+			argsString.WriteString(" " + arg.Arg)
+		}
+		if arg.Value != "" {
+			argsString.WriteString(" " + arg.Value)
+		}
+	}
+	// Return the trimed stringified arguments
+	return strings.TrimSpace(argsString.String())
+}
+
+func (b *BashOperator) RunTask() (string, error) {
+	cmdString := b.Cmd + " " + b.GetArgsToString()
+	cmd := exec.Command("bash", "-c", cmdString)
 	stdout, err := cmd.Output()
+	fmt.Println(string(stdout))
 
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return "", errors.New("Error occured during the script execution")
 	}
-	fmt.Println(string(stdout))
+	return string(stdout), nil
 }
