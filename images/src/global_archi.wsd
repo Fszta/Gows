@@ -1,0 +1,71 @@
+@startuml
+
+title Global architecture
+
+left to right direction
+
+package operators {
+    interface Operator {
+        +RunTask(): string
+	    +SetCmd(cmd string)
+	    +SetArguments(args []Argument)
+    }
+
+    class BashOperator {
+        +NewBashOperator()
+        +GetArgsToString()
+    }
+
+    class PythonOperator {
+
+    }
+}
+
+package parsers {
+    interface ConfigParser {
+        +CheckConfigValidity()
+    }
+    class BashParser {
+
+    }
+    class PythonParser {
+
+    }
+
+}
+
+class GowsDag {
+    +tasks: Map<String, Task>
+}
+
+class Task {
+    +operator: Operator
+    +id: String
+    +name: String
+    +status: String
+    +CreateOperator(): Operator
+}
+
+class Scheduler {
+    +dag: GowsDag
+    +schedule: String
+    +setupScheduler()
+    +runScheduler()
+}
+
+
+
+class BashOperator implements Operator
+class PythonOperator implements Operator
+
+class BashParser implements ConfigParser
+class PythonParser implements ConfigParser
+
+Scheduler "1" o-- "1" GowsDag
+
+GowsDag "1" o-- "1..*" Task
+Task "1" o-- "1" Operator
+
+@enduml
+
+"when": "daily:03:00"
