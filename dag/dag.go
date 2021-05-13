@@ -44,13 +44,6 @@ func (d *Dag) AddTask(task *task.Task) {
 	d.tasks[task.GetUuid()] = newTask
 }
 
-func (d *Dag) AddMultipleTasks(tasks []*task.Task) {
-	for _, taskToAdd := range tasks {
-		newTask := DagTask{*taskToAdd, []uuid.UUID{}}
-		d.tasks[taskToAdd.GetUuid()] = newTask
-	}
-}
-
 func (d *Dag) GetTask(key uuid.UUID) *task.Task {
 	var requestedTask task.Task = d.tasks[key].task
 	return &requestedTask
