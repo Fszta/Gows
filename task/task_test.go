@@ -7,7 +7,7 @@ import (
 func TestCreateTask(t *testing.T) {
 	task, _ := CreateTask("bash", "my_task")
 
-	if task.name != "my_task" && task.logs != "" && task.status != "" {
+	if task.name != "my_task" && task.logs != "" && task.status != "not started" {
 		t.Errorf("Task was not properly created")
 	}
 
@@ -21,7 +21,7 @@ func TestCreateTask(t *testing.T) {
 func TestSetStatus(t *testing.T) {
 	task, _ := CreateTask("bash", "my_task")
 	status := "fail"
-	task.SetStatus(status)
+	task.UpdateStatus(status)
 
 	if task.status != status {
 		t.Errorf("The status was not set properly to status field of Task")
