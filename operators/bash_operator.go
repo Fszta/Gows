@@ -2,7 +2,6 @@ package operators
 
 import (
 	"errors"
-	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -44,10 +43,12 @@ func (b *BashOperator) GetArgsToString() string {
 }
 
 func (b *BashOperator) RunTask() (string, error) {
+	if b.Cmd == "" {
+		return "", errors.New("Error some bash code was found")
+	}
 	cmdString := b.Cmd + " " + b.GetArgsToString()
 	cmd := exec.Command("bash", "-c", cmdString)
 	stdout, err := cmd.Output()
-	fmt.Println(string(stdout))
 
 	if err != nil {
 		return "", errors.New("Error occured during the script execution")

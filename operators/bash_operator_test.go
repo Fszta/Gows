@@ -88,3 +88,12 @@ func TestRunCmd(t *testing.T) {
 		t.Errorf("An error occurs during the execution of the bash cmd")
 	}
 }
+
+func TestRunCmdNoCodeFound(t *testing.T) {
+	bash := NewBashOperator()
+	_, error := bash.RunTask()
+	// If no code is found, the function should return a error
+	if error == nil {
+		t.Errorf("The cmd should not have been run with no code")
+	}
+}
