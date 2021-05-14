@@ -131,6 +131,7 @@ func (d *Dag) RunDag() {
 	dagChannel := make(chan uuid.UUID)
 
 	remainingTasks := make(map[uuid.UUID]DagTask)
+
 	for i, task := range d.tasks {
 		remainingTasks[i] = task
 	}
@@ -140,6 +141,10 @@ func (d *Dag) RunDag() {
 	for {
 		taskUUID := <-dagChannel
 		delete(remainingTasks, taskUUID)
+
+		if len(remainingTasks) == 0 {
+			break
+		}
 		d.RunDependentTask(remainingTasks, dagChannel)
 	}
 }
