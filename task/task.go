@@ -14,7 +14,7 @@ const (
 )
 
 type Task struct {
-	operator operators.Operator
+	Operator operators.Operator
 	uuid     uuid.UUID
 	name     string
 	status   string
@@ -30,25 +30,28 @@ func CreateTask(operatorName string, taskName string) (*Task, error) {
 	}
 
 	return &Task{
-		operator: operator,
+		Operator: operator,
 		uuid:     taskUUID,
 		name:     taskName,
 		status:   defaultStatus,
 	}, nil
 }
 
-func (t *Task) Run() {
+func (t *Task) Run(dagChannel chan uuid.UUID) error {
 	t.updateStatus(runningStatus)
-
-	logs, err := t.operator.RunTask()
+	logs, err := t.Operator.RunTask()
+	dagChannel <- t.uuid
 
 	if err != nil {
 		t.setLogs(err.Error())
 		t.updateStatus(failStatus)
+		return err
 	}
 
 	t.setLogs(logs)
 	t.updateStatus(successStatus)
+
+	return nil
 }
 
 func (t *Task) updateStatus(status string) {
