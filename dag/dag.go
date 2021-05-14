@@ -80,11 +80,21 @@ func (d *Dag) GetTaskDependencies(task *task.Task) []uuid.UUID {
 	return d.tasks[task.GetUuid()].dependencies
 }
 
-func (d *Dag) GetStatus() map[uuid.UUID]string {
+func (d *Dag) GetAllTaskStatus() map[uuid.UUID]string {
 	tasksStatus := map[uuid.UUID]string{}
 	for taskId, task := range d.tasks {
 		status := task.task.GetStatus()
 		tasksStatus[taskId] = status
 	}
 	return tasksStatus
+}
+
+func (d *Dag) GetTaskStatus(taskName string) (string, error) {
+	for _, task := range d.tasks {
+		if task.task.GetName() == taskName {
+			status := task.task.GetStatus()
+			return status, nil
+		}
+	}
+	return "", errors.New("ERROR TASK %s DOESN'T EXISTS")
 }

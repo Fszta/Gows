@@ -128,13 +128,11 @@ func TestSetMultiplesDependencies(t *testing.T) {
 	}
 }
 
-func TestGetStatus(t *testing.T) {
+func TestGetAllTaskStatus(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
-
-	/* Creation of tasks */
 	task, _ := task.CreateTask("bash", "first_task")
 	dag.AddTask(task)
-	tasksStatus := dag.GetStatus()
+	tasksStatus := dag.GetAllTaskStatus()
 
 	if len(tasksStatus) != 1 {
 		t.Errorf("The taskStatus map was not properly created")
@@ -142,5 +140,24 @@ func TestGetStatus(t *testing.T) {
 
 	if tasksStatus[task.GetUuid()] != DefaultStatus {
 		t.Errorf("The wrong status code has been returned")
+	}
+}
+
+func TestGetTaskStatus(t *testing.T) {
+	dag, _ := CreateDag("my_dag")
+	taskName := "my_task"
+
+	task, _ := task.CreateTask("bash", taskName)
+	dag.AddTask(task)
+
+	taskStatus, _ := dag.GetTaskStatus(taskName)
+
+	if taskStatus != DefaultStatus {
+		t.Errorf("The wrong status code has been returned")
+	}
+
+	_, err := dag.GetTaskStatus("unknow_task")
+	if err == nil {
+		t.Errorf("An error should be returned when task does'nt exists")
 	}
 }
