@@ -2,7 +2,6 @@ package dag
 
 import (
 	"errors"
-	"fmt"
 	"gows/task"
 
 	"github.com/google/uuid"
@@ -67,7 +66,6 @@ func (d *Dag) SetDependency(task *task.Task, dependencyTask *task.Task) {
 	dagTasksRef := d.tasks[task.GetUuid()]
 	dagTasksRef.dependencies = append(dagTasksRef.dependencies, dependencyTask.GetUuid())
 	d.tasks[task.GetUuid()] = dagTasksRef
-	fmt.Println(d.tasks[task.GetUuid()].dependencies)
 }
 
 func (d *Dag) SetMultiplesDependencies(task *task.Task, dependencyTasks []*task.Task) {
@@ -97,4 +95,51 @@ func (d *Dag) GetTaskStatus(taskName string) (string, error) {
 		}
 	}
 	return "", errors.New("ERROR TASK %s DOESN'T EXISTS")
+}
+
+func (d *Dag) RunTaskWithoutDependencies(tasks map[uuid.UUID]DagTask, dagChannel chan uuid.UUID) {
+	for _, task := range tasks {
+		if len(task.dependencies) == 0 {
+			go task.task.Run(dagChannel)
+		}
+	}
+}
+
+func (d *Dag) RunDependentTask(tasks map[uuid.UUID]DagTask, dagChannel chan uuid.UUID) {
+
+	for _, task := range tasks {
+
+		isReady := true
+
+		if len(task.dependencies) != 0 {
+			for _, dependencyUUID := range task.dependencies {
+				if d.tasks[dependencyUUID].task.GetStatus() != SuccessStatus || d.tasks[dependencyUUID].task.GetStatus() != FailStatus && !isReady {
+					isReady = false
+					continue
+				}
+				isReady = true
+			}
+			if isReady {
+				go task.task.Run(dagChannel)
+				delete(tasks, task.task.GetUuid())
+			}
+		}
+	}
+}
+
+func (d *Dag) RunDag() {
+	dagChannel := make(chan uuid.UUID)
+
+	remainingTasks := make(map[uuid.UUID]DagTask)
+	for i, task := range d.tasks {
+		remainingTasks[i] = task
+	}
+
+	d.RunTaskWithoutDependencies(remainingTasks, dagChannel)
+
+	for {
+		taskUUID := <-dagChannel
+		delete(remainingTasks, taskUUID)
+		d.RunDependentTask(remainingTasks, dagChannel)
+	}
 }
