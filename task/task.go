@@ -70,3 +70,7 @@ func (t *Task) GetUuid() uuid.UUID {
 func (t *Task) GetName() string {
 	return t.name
 }
+
+func (t *Task) GetStatus() string {
+	return t.status
+}
