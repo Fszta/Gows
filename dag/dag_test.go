@@ -7,7 +7,7 @@ import (
 
 func TestCreateDag(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
-	if dag.name != "my_dag" && dag.status != DefaultStatus && len(dag.tasks) != 0 {
+	if dag.name != "my_dag" && dag.status != DefaultStatus || len(dag.tasks) != 0 {
 		t.Errorf("The Dag was not created properly")
 	}
 
@@ -90,7 +90,7 @@ func TestGetAllTask(t *testing.T) {
 
 	allTasks := dag.GetAllTasks()
 
-	if allTasks[0].GetUuid() != task1Uuid && allTasks[1].GetUuid() != task2Uuid {
+	if allTasks[0].GetUuid() != task1Uuid || allTasks[1].GetUuid() != task2Uuid {
 		t.Errorf("All the tasks were not properly retreived")
 	}
 }
