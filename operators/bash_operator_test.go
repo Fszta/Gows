@@ -5,17 +5,43 @@ import (
 )
 
 func TestSetCmd(t *testing.T) {
-	bash := NewBashOperator()
+	bash := CreateBashOperator()
 	cmdString := "some_cmd"
 	bash.SetCmd(cmdString)
 
-	if bash.Cmd != cmdString {
+	if bash.cmd != cmdString {
 		t.Errorf("The cmd was not properly set to the Cmd field of BashOperator")
 	}
 }
 
+func TestMakeCmdWithArgs(t *testing.T) {
+	bash := CreateBashOperator()
+	bash.SetCmd("ls")
+	bash.AddArgument("-n", "")
+	bash.AddArgument("--file", "some_file.txt")
+	bash.makeCmd()
+
+	expectedValue := "ls -n --file some_file.txt"
+
+	if bash.cmd != expectedValue {
+		t.Errorf("The cmd string was not properly built")
+	}
+}
+
+func TestMakeCmdNoArgs(t *testing.T) {
+	bash := CreateBashOperator()
+	bash.SetCmd("ls")
+	bash.makeCmd()
+
+	expectedValue := "ls"
+
+	if bash.cmd != expectedValue {
+		t.Errorf("The cmd string was not properly built")
+	}
+}
+
 func TestRunCmd(t *testing.T) {
-	bash := NewBashOperator()
+	bash := CreateBashOperator()
 	cmd := "ls"
 	bash.SetCmd(cmd)
 	_, error := bash.RunTask()
@@ -25,7 +51,7 @@ func TestRunCmd(t *testing.T) {
 }
 
 func TestRunCmdNoCodeFound(t *testing.T) {
-	bash := NewBashOperator()
+	bash := CreateBashOperator()
 	_, error := bash.RunTask()
 	// If no code is found, the function should return a error
 	if error == nil {

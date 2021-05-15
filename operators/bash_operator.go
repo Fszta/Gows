@@ -3,26 +3,42 @@ package operators
 import (
 	"errors"
 	"os/exec"
+	"strings"
 )
 
 type BashOperator struct {
-	Cmd string
+	ArgumentsHandler
+	cmd string
 }
 
-func NewBashOperator() *BashOperator {
+func CreateBashOperator() *BashOperator {
 	return &BashOperator{}
 }
 
 func (b *BashOperator) SetCmd(cmd string) {
-	b.Cmd = cmd
+	b.cmd = cmd
+}
+
+func (b *BashOperator) makeCmd() {
+	var cmdBuilder strings.Builder
+	cmdBuilder.WriteString(b.cmd)
+
+	argsString := b.getArgsToString()
+	if argsString != "" {
+		cmdBuilder.WriteString(" " + argsString)
+	}
+	b.cmd = cmdBuilder.String()
 }
 
 func (b *BashOperator) RunTask() (string, error) {
-	if b.Cmd == "" {
-		return "", errors.New("Error some bash code was found")
+
+	b.makeCmd()
+
+	if b.cmd == "" {
+		return "", errors.New("Error no bash code was found")
 	}
 
-	cmd := exec.Command("bash", "-c", b.Cmd)
+	cmd := exec.Command("bash", "-c", b.cmd)
 	stdout, err := cmd.Output()
 
 	if err != nil {
