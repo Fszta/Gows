@@ -1,9 +1,16 @@
 package dag
 
 import (
+	"gows/operators"
 	"gows/task"
 	"testing"
 )
+
+func getTestingBashOperator() operators.Operator {
+	operator := operators.CreateBashOperator()
+	operator.SetCmd("ls -all")
+	return operator
+}
 
 func TestCreateDag(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
@@ -19,7 +26,7 @@ func TestCreateDag(t *testing.T) {
 
 func TestAddTask(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
-	task, _ := task.CreateTask("bash", "my_task")
+	task, _ := task.CreateTask(getTestingBashOperator(), "my_task")
 	taskUuid := task.GetUuid()
 
 	initialDagSize := len(dag.tasks)
@@ -40,9 +47,9 @@ func TestAddMultipleTasks(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
 
 	/* Creation of tasks */
-	task1, _ := task.CreateTask("bash", "first_task")
+	task1, _ := task.CreateTask(getTestingBashOperator(), "first_task")
 	task1Uuid := task1.GetUuid()
-	task2, _ := task.CreateTask("bash", "second_task")
+	task2, _ := task.CreateTask(getTestingBashOperator(), "second_task")
 	task2Uuid := task2.GetUuid()
 
 	initialDagSize := len(dag.tasks)
@@ -67,7 +74,7 @@ func TestAddMultipleTasks(t *testing.T) {
 
 func TestGetTask(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
-	task, _ := task.CreateTask("bash", "my_task")
+	task, _ := task.CreateTask(getTestingBashOperator(), "my_task")
 	taskUuid := task.GetUuid()
 	dag.AddTask(task)
 
@@ -81,9 +88,9 @@ func TestGetAllTask(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
 
 	/* Creation of tasks */
-	task1, _ := task.CreateTask("bash", "first_task")
+	task1, _ := task.CreateTask(getTestingBashOperator(), "first_task")
 	task1Uuid := task1.GetUuid()
-	task2, _ := task.CreateTask("bash", "second_task")
+	task2, _ := task.CreateTask(getTestingBashOperator(), "second_task")
 	task2Uuid := task2.GetUuid()
 
 	dag.AddMultiplesTasks([]*task.Task{task1, task2})
@@ -99,8 +106,8 @@ func TestSetDependency(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
 
 	/* Creation of tasks */
-	task1, _ := task.CreateTask("bash", "first_task")
-	task2, _ := task.CreateTask("bash", "second_task")
+	task1, _ := task.CreateTask(getTestingBashOperator(), "first_task")
+	task2, _ := task.CreateTask(getTestingBashOperator(), "second_task")
 
 	dag.AddMultiplesTasks([]*task.Task{task1, task2})
 	dag.SetDependency(task1, task2)
@@ -115,9 +122,9 @@ func TestSetMultiplesDependencies(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
 
 	/* Creation of tasks */
-	task1, _ := task.CreateTask("bash", "first_task")
-	task2, _ := task.CreateTask("bash", "second_task")
-	task3, _ := task.CreateTask("bash", "third_task")
+	task1, _ := task.CreateTask(getTestingBashOperator(), "first_task")
+	task2, _ := task.CreateTask(getTestingBashOperator(), "second_task")
+	task3, _ := task.CreateTask(getTestingBashOperator(), "third_task")
 
 	dag.AddMultiplesTasks([]*task.Task{task1, task2, task3})
 	dag.SetMultiplesDependencies(task1, []*task.Task{task2, task3})
@@ -130,7 +137,7 @@ func TestSetMultiplesDependencies(t *testing.T) {
 
 func TestGetAllTaskStatus(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
-	task, _ := task.CreateTask("bash", "first_task")
+	task, _ := task.CreateTask(getTestingBashOperator(), "first_task")
 	dag.AddTask(task)
 	tasksStatus := dag.GetAllTaskStatus()
 
@@ -147,7 +154,7 @@ func TestGetTaskStatus(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
 	taskName := "my_task"
 
-	task, _ := task.CreateTask("bash", taskName)
+	task, _ := task.CreateTask(getTestingBashOperator(), taskName)
 	dag.AddTask(task)
 
 	taskStatus, _ := dag.GetTaskStatus(taskName)

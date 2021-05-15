@@ -30,14 +30,9 @@ func main() {
 	dag.AddTask(task3)
 	dag.SetDependency(task3, task2)
 
-	for _, value := range dag.GetAllTasks() {
-		taskName := value.GetName()
-		fmt.Println(taskName)
+	dag.RunDag()
+
+	for uuid, status := range dag.GetAllTaskStatus() {
+		fmt.Printf("%s : %s \n", uuid.String(), status)
 	}
-
-	// dag.RunDag()
-
-	// for uuid, status := range dag.GetAllTaskStatus() {
-	// 	fmt.Printf("%s : %s \n", uuid.String(), status)
-	// }
 }

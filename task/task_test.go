@@ -1,25 +1,24 @@
 package task
 
 import (
+	"gows/operators"
 	"testing"
 )
 
 func TestCreateTask(t *testing.T) {
-	task, _ := CreateTask("bash", "my_task")
+	operator := operators.CreateBashOperator()
+	operator.SetCmd("ls -all")
+	task, _ := CreateTask(operator, "my_task")
 
 	if task.name != "my_task" && task.logs != "" && task.status != "not started" {
 		t.Errorf("Task was not properly created")
 	}
-
-	_, err := CreateTask("unknow", "my_task")
-
-	if err == nil {
-		t.Errorf("Task creation should failed when unknow operator name is passed")
-	}
 }
 
 func TestUpdateStatus(t *testing.T) {
-	task, _ := CreateTask("bash", "my_task")
+	operator := operators.CreateBashOperator()
+	operator.SetCmd("ls -all")
+	task, _ := CreateTask(operator, "my_task")
 	status := "fail"
 	task.updateStatus(status)
 
