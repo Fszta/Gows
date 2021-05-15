@@ -35,7 +35,20 @@ package parsers {
 }
 
 class GowsDag {
-    +tasks: Map<String, Task>
+    -uuid: UUID
+    -name: String
+    -status: String
+    -tasks: Map<String, Task>
+    +CreateDag(dagName: String): GowsDag
+    +AddTask(task Task)
+    +AddMultiplesTask(tasks []Task)
+    +GetTask(taskId UUID): Task
+    +GetAllTasks(): []Task
+    +SetDependency(task Task, dependency Task)
+    +SetMultiplesDependencies(task Task, dependencies []Task)
+    +SetScheduler(schedule String)
+    +RunDag()
+    +GetStatus()
 }
 
 class Task {

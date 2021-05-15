@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+go.sum
 
 # IDE
 .DS_Store

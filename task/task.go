@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var (
+const (
 	defaultStatus = "not started"
 	runningStatus = "running"
 	failStatus    = "fail"
@@ -14,41 +14,39 @@ var (
 )
 
 type Task struct {
-	operator operators.Operator
+	Operator operators.Operator
 	uuid     uuid.UUID
 	name     string
 	status   string
 	logs     string
 }
 
-func CreateTask(operatorName string, taskName string) (*Task, error) {
+func CreateTask(operator operators.Operator, taskName string) (*Task, error) {
 	taskUUID := uuid.New()
-	operator, err := operators.NewOperator(operatorName)
-
-	if err != nil {
-		return nil, err
-	}
 
 	return &Task{
-		operator: operator,
+		Operator: operator,
 		uuid:     taskUUID,
 		name:     taskName,
 		status:   defaultStatus,
 	}, nil
 }
 
-func (t *Task) Run() {
+func (t *Task) Run(dagChannel chan uuid.UUID) error {
 	t.updateStatus(runningStatus)
-
-	logs, err := t.operator.RunTask()
+	logs, err := t.Operator.RunTask()
+	dagChannel <- t.uuid
 
 	if err != nil {
 		t.setLogs(err.Error())
 		t.updateStatus(failStatus)
+		return err
 	}
 
 	t.setLogs(logs)
 	t.updateStatus(successStatus)
+
+	return nil
 }
 
 func (t *Task) updateStatus(status string) {
@@ -61,4 +59,16 @@ func (t *Task) setLogs(logs string) {
 
 func (t *Task) GetLogs() string {
 	return t.logs
+}
+
+func (t *Task) GetUuid() uuid.UUID {
+	return t.uuid
+}
+
+func (t *Task) GetName() string {
+	return t.name
+}
+
+func (t *Task) GetStatus() string {
+	return t.status
 }
