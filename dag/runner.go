@@ -1,29 +1,35 @@
 package dag
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 )
 
-func (d *Dag) RunTaskWithoutDependencies(tasks map[uuid.UUID]DagTask, dagChannel chan uuid.UUID) {
+// RunTaksWithoutDependencies run dag's top level task, which have no dependencies
+func (d *Dag) RunTaskWithoutDependencies(tasks map[uuid.UUID]DagTask, dagChannel, failChannel chan uuid.UUID) {
 	for _, task := range tasks {
 		if len(task.dependencies) == 0 {
-			go task.task.Run(dagChannel)
+			go task.task.Run(dagChannel, failChannel)
 		}
 	}
 }
 
-func (d *Dag) RunDependentTask(tasks map[uuid.UUID]DagTask, dagChannel chan uuid.UUID, failChannel chan uuid.UUID) {
+// RunDependentTask run dag's tasks which have any dependencies only
+// if the status of their dependencies is SuccessStatus
+// removes the task if any dependency is failed
+// otherwise continue without doing anything
+func (d *Dag) RunDependentTask(tasks map[uuid.UUID]DagTask, dagChannel, failChannel, cancelChannel chan uuid.UUID) {
 
 	for _, task := range tasks {
-
 		isReady := true
 
 		if len(task.dependencies) != 0 {
 			for _, dependencyUUID := range task.dependencies {
-				if d.tasks[dependencyUUID].task.GetStatus() == FailStatus {
-					failChannel <- task.task.GetUuid()
-					failChannel <- dependencyUUID
-					return
+				// Check if a task depends on a failed or canceled task
+				if d.tasks[dependencyUUID].task.GetStatus() == FailStatus || d.tasks[dependencyUUID].task.GetStatus() == CancelStatus {
+					cancelChannel <- dependencyUUID
+					continue
 				}
 
 				if d.tasks[dependencyUUID].task.GetStatus() != SuccessStatus {
@@ -33,51 +39,69 @@ func (d *Dag) RunDependentTask(tasks map[uuid.UUID]DagTask, dagChannel chan uuid
 
 				isReady = true
 			}
-			if isReady {
-				go task.task.Run(dagChannel)
-				delete(tasks, task.task.GetUuid())
+			if isReady && task.task.GetStatus() == DefaultStatus {
+				go task.task.Run(dagChannel, failChannel)
 			}
 		}
 	}
 }
 
 func (d *Dag) RunDag() {
-	dagChannel := make(chan uuid.UUID)
+	successChannel := make(chan uuid.UUID)
+	cancelChannel := make(chan uuid.UUID)
 	failChannel := make(chan uuid.UUID)
+	remainingTasks := copyTasksMap(d.tasks)
 
-	remainingTasks := make(map[uuid.UUID]DagTask)
-
-	for i, task := range d.tasks {
-		remainingTasks[i] = task
-	}
-
-	d.RunTaskWithoutDependencies(remainingTasks, dagChannel)
+	// Run top level tasks
+	d.RunTaskWithoutDependencies(remainingTasks, successChannel, failChannel)
 
 	for {
 		select {
-		case taskUUID := <-dagChannel:
-			delete(remainingTasks, taskUUID)
+		// UUID sent by a task which ended successfully
+		case successfulTaskUUID := <-successChannel:
+			delete(remainingTasks, successfulTaskUUID)
 			if len(remainingTasks) == 0 {
 				return
 			}
-			go d.RunDependentTask(remainingTasks, dagChannel, failChannel)
+			go d.RunDependentTask(remainingTasks, successChannel, failChannel, cancelChannel)
 
-		case failUUID := <-failChannel:
-			delete(remainingTasks, failUUID)
+		case canceledTaskUUID := <-cancelChannel:
+			// Cancel tasks which depends on canceledTaskUUID
+			d.cancelDependenciesTask(remainingTasks, canceledTaskUUID)
+
+		// UUID sent by a task which failed
+		case failedTaskUUID := <-failChannel:
+			// Remove failing task from remaining tasks
+			delete(remainingTasks, failedTaskUUID)
+
+			// Cancel tasks which depends on failedTaskUUID
+			d.cancelDependenciesTask(remainingTasks, failedTaskUUID)
 			if len(remainingTasks) == 0 {
 				return
-			}
-			for _, task := range remainingTasks {
-				for _, dependencyUUID := range task.dependencies {
-					if failUUID == dependencyUUID {
-						delete(remainingTasks, task.task.GetUuid())
-						if len(remainingTasks) == 0 {
-							break
-						}
-					}
-				}
 			}
 		}
 
 	}
+}
+
+func (d *Dag) cancelDependenciesTask(remainingTasks map[uuid.UUID]DagTask, canceledTaskUUID uuid.UUID) {
+	for _, task := range remainingTasks {
+		for _, dependencyUUID := range task.dependencies {
+			if canceledTaskUUID == dependencyUUID {
+				fmt.Printf("remove task %s because have a canceled or failed dependency : %s\n", task.task.GetName(), d.tasks[canceledTaskUUID].task.GetName())
+				task.task.UpdateStatus(CancelStatus)
+				delete(remainingTasks, task.task.GetUuid())
+			}
+		}
+	}
+}
+
+func copyTasksMap(tasksToCopy map[uuid.UUID]DagTask) map[uuid.UUID]DagTask {
+	copiedTasks := make(map[uuid.UUID]DagTask)
+
+	for i, task := range tasksToCopy {
+		copiedTasks[i] = task
+	}
+
+	return copiedTasks
 }

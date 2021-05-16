@@ -12,6 +12,7 @@ const (
 	RunningStatus = "running"
 	FailStatus    = "fail"
 	SuccessStatus = "success"
+	CancelStatus  = "cancel"
 )
 
 type DagTask struct {
