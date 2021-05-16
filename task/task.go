@@ -37,24 +37,24 @@ func CreateTask(operatorName string, taskName string) (*Task, error) {
 	}, nil
 }
 
-func (t *Task) Run(dagChannel chan uuid.UUID) error {
-	t.updateStatus(runningStatus)
-	logs, err := t.Operator.RunTask()
-	dagChannel <- t.uuid
+func (t *Task) Run(successChannel chan uuid.UUID, failChannel chan uuid.UUID) error {
 
+	t.UpdateStatus(runningStatus)
+	logs, err := t.Operator.RunTask()
 	if err != nil {
 		t.setLogs(err.Error())
-		t.updateStatus(failStatus)
+		t.UpdateStatus(failStatus)
+		failChannel <- t.uuid
 		return err
 	}
-
+	t.UpdateStatus(successStatus)
 	t.setLogs(logs)
-	t.updateStatus(successStatus)
+	successChannel <- t.uuid
 
 	return nil
 }
 
-func (t *Task) updateStatus(status string) {
+func (t *Task) UpdateStatus(status string) {
 	t.status = status
 }
 
