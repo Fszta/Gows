@@ -117,7 +117,7 @@ func TestRunDagSequentialFail(t *testing.T) {
 		t.Errorf("Task2 should be failed %s", task2Status)
 	}
 
-	if task3Status != DefaultStatus {
+	if task3Status != CancelStatus {
 		t.Errorf("Task3 should be not started %s", task3Status)
 	}
 }
@@ -170,8 +170,8 @@ func TestRunDagParallelFail(t *testing.T) {
 	task7Status, _ := dag.GetTaskStatus("task7")
 
 	if task1Status != SuccessStatus || task2Status != FailStatus || task3Status != SuccessStatus ||
-		task4Status != DefaultStatus || task5Status != DefaultStatus ||
-		task6Status != SuccessStatus || task7Status != DefaultStatus {
+		task4Status != CancelStatus || task5Status != CancelStatus ||
+		task6Status != SuccessStatus || task7Status != CancelStatus {
 		t.Errorf(
 			"task1, task3, task6 should be succesfull, have : %s, %s, %s, task2 should be failed, have: %s, task4 and task5 should be not started, have: %s and %s ",
 			task1Status, task3Status, task6Status, task2Status, task4Status, task5Status)
