@@ -20,7 +20,7 @@ func TestUpdateStatus(t *testing.T) {
 	operator.SetCmd("ls -all")
 	task, _ := CreateTask(operator, "my_task")
 	status := "fail"
-	task.updateStatus(status)
+	task.UpdateStatus(status)
 
 	if task.status != status {
 		t.Errorf("The status was not set properly to status field of Task")

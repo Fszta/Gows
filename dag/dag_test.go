@@ -13,7 +13,7 @@ func getTestingBashOperator() operators.Operator {
 }
 
 func TestCreateDag(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("empty_dag")
 	if dag.name != "my_dag" && dag.status != DefaultStatus || len(dag.tasks) != 0 {
 		t.Errorf("The Dag was not created properly")
 	}
@@ -25,7 +25,7 @@ func TestCreateDag(t *testing.T) {
 }
 
 func TestAddTask(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("one_task_dag")
 	task, _ := task.CreateTask(getTestingBashOperator(), "my_task")
 	taskUuid := task.GetUuid()
 
@@ -44,7 +44,7 @@ func TestAddTask(t *testing.T) {
 }
 
 func TestAddMultipleTasks(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("multiple_tasks_dag")
 
 	/* Creation of tasks */
 	task1, _ := task.CreateTask(getTestingBashOperator(), "first_task")
@@ -73,7 +73,7 @@ func TestAddMultipleTasks(t *testing.T) {
 }
 
 func TestGetTask(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("a_dag")
 	task, _ := task.CreateTask(getTestingBashOperator(), "my_task")
 	taskUuid := task.GetUuid()
 	dag.AddTask(task)
@@ -85,7 +85,7 @@ func TestGetTask(t *testing.T) {
 }
 
 func TestGetAllTask(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("dag_test")
 
 	/* Creation of tasks */
 	task1, _ := task.CreateTask(getTestingBashOperator(), "first_task")
@@ -103,7 +103,7 @@ func TestGetAllTask(t *testing.T) {
 }
 
 func TestSetDependency(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("dag")
 
 	/* Creation of tasks */
 	task1, _ := task.CreateTask(getTestingBashOperator(), "first_task")
@@ -119,7 +119,7 @@ func TestSetDependency(t *testing.T) {
 }
 
 func TestSetMultiplesDependencies(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("dag_task_multiple_dependencies")
 
 	/* Creation of tasks */
 	task1, _ := task.CreateTask(getTestingBashOperator(), "first_task")
@@ -136,7 +136,7 @@ func TestSetMultiplesDependencies(t *testing.T) {
 }
 
 func TestGetAllTaskStatus(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("any_dag")
 	task, _ := task.CreateTask(getTestingBashOperator(), "first_task")
 	dag.AddTask(task)
 	tasksStatus := dag.GetAllTaskStatus()
@@ -151,7 +151,7 @@ func TestGetAllTaskStatus(t *testing.T) {
 }
 
 func TestGetTaskStatus(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("another_dag")
 	taskName := "my_task"
 
 	task, _ := task.CreateTask(getTestingBashOperator(), taskName)
@@ -165,6 +165,6 @@ func TestGetTaskStatus(t *testing.T) {
 
 	_, err := dag.GetTaskStatus("unknow_task")
 	if err == nil {
-		t.Errorf("An error should be returned when task does'nt exists")
+		t.Errorf("An error should be returned when task doesn't exists")
 	}
 }
