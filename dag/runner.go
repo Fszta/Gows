@@ -20,7 +20,6 @@ func (d *Dag) RunTaskWithoutDependencies(tasks map[uuid.UUID]DagTask, dagChannel
 // removes the task if any dependency is failed
 // otherwise continue without doing anything
 func (d *Dag) RunDependentTask(tasks map[uuid.UUID]DagTask, dagChannel, failChannel, cancelChannel chan uuid.UUID) {
-
 	for _, task := range tasks {
 		isReady := true
 
@@ -29,24 +28,24 @@ func (d *Dag) RunDependentTask(tasks map[uuid.UUID]DagTask, dagChannel, failChan
 				// Check if a task depends on a failed or canceled task
 				if d.tasks[dependencyUUID].task.GetStatus() == FailStatus || d.tasks[dependencyUUID].task.GetStatus() == CancelStatus {
 					cancelChannel <- dependencyUUID
-					continue
 				}
 
 				if d.tasks[dependencyUUID].task.GetStatus() != SuccessStatus {
 					isReady = false
-					break
 				}
 
 				isReady = true
 			}
 			if isReady && task.task.GetStatus() == DefaultStatus {
-				go task.task.Run(dagChannel, failChannel)
+				task.task.Run(dagChannel, failChannel)
 			}
 		}
 	}
 }
 
 func (d *Dag) RunDag() {
+	d.resetDagStatus()
+
 	successChannel := make(chan uuid.UUID)
 	cancelChannel := make(chan uuid.UUID)
 	failChannel := make(chan uuid.UUID)
@@ -64,10 +63,12 @@ func (d *Dag) RunDag() {
 				return
 			}
 			go d.RunDependentTask(remainingTasks, successChannel, failChannel, cancelChannel)
-
 		case canceledTaskUUID := <-cancelChannel:
 			// Cancel tasks which depends on canceledTaskUUID
 			d.cancelDependenciesTask(remainingTasks, canceledTaskUUID)
+			if len(remainingTasks) == 0 {
+				return
+			}
 
 		// UUID sent by a task which failed
 		case failedTaskUUID := <-failChannel:
@@ -80,8 +81,8 @@ func (d *Dag) RunDag() {
 				return
 			}
 		}
-
 	}
+
 }
 
 func (d *Dag) cancelDependenciesTask(remainingTasks map[uuid.UUID]DagTask, canceledTaskUUID uuid.UUID) {
@@ -93,6 +94,12 @@ func (d *Dag) cancelDependenciesTask(remainingTasks map[uuid.UUID]DagTask, cance
 				delete(remainingTasks, task.task.GetUuid())
 			}
 		}
+	}
+}
+
+func (d *Dag) resetDagStatus() {
+	for _, task := range d.tasks {
+		task.task.UpdateStatus(DefaultStatus)
 	}
 }
 
