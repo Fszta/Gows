@@ -1,24 +1,36 @@
 package dag
 
 import (
+	"gows/operators"
 	"gows/task"
 	"testing"
 )
 
 func TestRunDagSequentialSuccess(t *testing.T) {
+
+	/*operator2 := operators.CreateBashOperator()
+	operator2.SetCmd("../sample-src/mockup.sh")
+	operator2.AddArgument("-n", "world")
+	task2, _ := task.CreateTask(operator2, "Second Bash Task")
+	dag.AddTask(task2)
+	dag.SetDependency(task2, task1)*/
+
 	dag, _ := CreateDag("my_dag")
 
-	task1, _ := task.CreateTask("bash", "task1")
-	task1.Operator.SetCmd("ls -lah")
+	operator1 := operators.CreateBashOperator()
+	operator1.SetCmd("ls -lah")
+	task1, _ := task.CreateTask(operator1, "task1")
 	dag.AddTask(task1)
 
-	task2, _ := task.CreateTask("bash", "task2")
-	task2.Operator.SetCmd("sleep 1 && tree")
+	operator2 := operators.CreateBashOperator()
+	operator2.SetCmd("sleep 1 && tree")
+	task2, _ := task.CreateTask(operator2, "task2")
 	dag.AddTask(task2)
 	dag.SetDependency(task2, task1)
 
-	task3, _ := task.CreateTask("bash", "task3")
-	task3.Operator.SetCmd("ps")
+	operator3 := operators.CreateBashOperator()
+	task3, _ := task.CreateTask(operator3, "task3")
+	operator3.SetCmd("ps")
 	dag.AddTask(task3)
 	dag.SetDependency(task3, task2)
 
@@ -36,37 +48,44 @@ func TestRunDagSequentialSuccess(t *testing.T) {
 func TestRunDagParallelSuccess(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
 
-	task1, _ := task.CreateTask("bash", "task1")
-	task1.Operator.SetCmd("ls -lah")
+	operator1 := operators.CreateBashOperator()
+	operator1.SetCmd("ls -lah")
+	task1, _ := task.CreateTask(operator1, "task1")
 	dag.AddTask(task1)
 
-	task2, _ := task.CreateTask("bash", "task2")
-	task2.Operator.SetCmd("sleep 1 && tree")
+	operator2 := operators.CreateBashOperator()
+	operator2.SetCmd("sleep 1 && echo toto")
+	task2, _ := task.CreateTask(operator2, "task2")
 	dag.AddTask(task2)
 	dag.SetDependency(task2, task1)
 
-	task3, _ := task.CreateTask("bash", "task3")
-	task3.Operator.SetCmd("ps")
+	operator3 := operators.CreateBashOperator()
+	operator3.SetCmd("tree")
+	task3, _ := task.CreateTask(operator3, "task3")
 	dag.AddTask(task3)
 	dag.SetDependency(task3, task1)
 
-	task4, _ := task.CreateTask("bash", "task4")
-	task4.Operator.SetCmd("ps")
+	operator4 := operators.CreateBashOperator()
+	operator4.SetCmd("ls")
+	task4, _ := task.CreateTask(operator4, "task4")
 	dag.AddTask(task4)
 	dag.SetDependency(task4, task2)
 
-	task5, _ := task.CreateTask("bash", "task5")
-	task5.Operator.SetCmd("ps")
+	operator5 := operators.CreateBashOperator()
+	operator5.SetCmd("ps")
+	task5, _ := task.CreateTask(operator5, "task5")
 	dag.AddTask(task5)
 	dag.SetDependency(task5, task2)
 
-	task6, _ := task.CreateTask("bash", "task6")
-	task6.Operator.SetCmd("ps")
+	operator6 := operators.CreateBashOperator()
+	operator6.SetCmd("echo toto")
+	task6, _ := task.CreateTask(operator6, "task6")
 	dag.AddTask(task6)
 	dag.SetDependency(task6, task3)
 
-	task7, _ := task.CreateTask("bash", "task7")
-	task7.Operator.SetCmd("ps")
+	operator7 := operators.CreateBashOperator()
+	operator7.SetCmd("echo toto && ls")
+	task7, _ := task.CreateTask(operator7, "task7")
 	dag.AddTask(task7)
 	dag.SetMultiplesDependencies(task7, []*task.Task{task4, task5, task6})
 
@@ -89,17 +108,21 @@ func TestRunDagParallelSuccess(t *testing.T) {
 
 func TestRunDagSequentialFail(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
-	task1, _ := task.CreateTask("bash", "task1")
-	task1.Operator.SetCmd("ls -lah")
+
+	operator1 := operators.CreateBashOperator()
+	operator1.SetCmd("ls -lah")
+	task1, _ := task.CreateTask(operator1, "task1")
 	dag.AddTask(task1)
 
-	task2, _ := task.CreateTask("bash", "task2")
-	task2.Operator.SetCmd("a bad bash command")
+	operator2 := operators.CreateBashOperator()
+	operator2.SetCmd("a bad bash command")
+	task2, _ := task.CreateTask(operator2, "task2")
 	dag.AddTask(task2)
 	dag.SetDependency(task2, task1)
 
-	task3, _ := task.CreateTask("bash", "task3")
-	task3.Operator.SetCmd("ps")
+	operator3 := operators.CreateBashOperator()
+	operator3.SetCmd("ps")
+	task3, _ := task.CreateTask(operator3, "task3")
 	dag.AddTask(task3)
 	dag.SetDependency(task3, task2)
 
@@ -125,37 +148,44 @@ func TestRunDagSequentialFail(t *testing.T) {
 func TestRunDagParallelFail(t *testing.T) {
 	dag, _ := CreateDag("my_dag")
 
-	task1, _ := task.CreateTask("bash", "task1")
-	task1.Operator.SetCmd("ls -lah")
+	operator1 := operators.CreateBashOperator()
+	operator1.SetCmd("ls -lah")
+	task1, _ := task.CreateTask(operator1, "task1")
 	dag.AddTask(task1)
 
-	task2, _ := task.CreateTask("bash", "task2")
-	task2.Operator.SetCmd("a failling command")
+	operator2 := operators.CreateBashOperator()
+	operator2.SetCmd("a failling command")
+	task2, _ := task.CreateTask(operator2, "task2")
 	dag.AddTask(task2)
 	dag.SetDependency(task2, task1)
 
-	task3, _ := task.CreateTask("bash", "task3")
-	task3.Operator.SetCmd("tree")
+	operator3 := operators.CreateBashOperator()
+	operator3.SetCmd("tree")
+	task3, _ := task.CreateTask(operator3, "task3")
 	dag.AddTask(task3)
 	dag.SetDependency(task3, task1)
 
-	task4, _ := task.CreateTask("bash", "task4")
-	task4.Operator.SetCmd("ls")
+	operator4 := operators.CreateBashOperator()
+	operator4.SetCmd("ls")
+	task4, _ := task.CreateTask(operator4, "task4")
 	dag.AddTask(task4)
 	dag.SetDependency(task4, task2)
 
-	task5, _ := task.CreateTask("bash", "task5")
-	task5.Operator.SetCmd("ps")
+	operator5 := operators.CreateBashOperator()
+	operator5.SetCmd("ps")
+	task5, _ := task.CreateTask(operator5, "task5")
 	dag.AddTask(task5)
 	dag.SetDependency(task5, task2)
 
-	task6, _ := task.CreateTask("bash", "task6")
-	task6.Operator.SetCmd("echo toto")
+	operator6 := operators.CreateBashOperator()
+	operator6.SetCmd("echo toto")
+	task6, _ := task.CreateTask(operator6, "task6")
 	dag.AddTask(task6)
 	dag.SetDependency(task6, task3)
 
-	task7, _ := task.CreateTask("bash", "task7")
-	task7.Operator.SetCmd("echo toto && ls")
+	operator7 := operators.CreateBashOperator()
+	operator7.SetCmd("echo toto && ls")
+	task7, _ := task.CreateTask(operator7, "task7")
 	dag.AddTask(task7)
 	dag.SetMultiplesDependencies(task7, []*task.Task{task4, task5, task6})
 
