@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"gows/dag"
 	"gows/operators"
 	"gows/task"
@@ -9,30 +8,29 @@ import (
 
 func main() {
 
-	dag, _ := dag.CreateDag("my_dag")
-
+	dag1, _ := dag.CreateDag("my_dag1")
 	operator1 := operators.CreateBashOperator()
-	operator1.SetCmd("../sample-src/mockup.sh -n world")
+	operator1.SetCmd("ps")
 	task1, _ := task.CreateTask(operator1, "First Bash Task")
-	dag.AddTask(task1)
+	dag1.AddTask(task1)
 
 	operator2 := operators.CreateBashOperator()
-	operator2.SetCmd("../sample-src/mockup.sh")
-	operator2.AddArgument("-n", "world")
+	operator2.SetCmd("ls")
 	task2, _ := task.CreateTask(operator2, "Second Bash Task")
-	dag.AddTask(task2)
-	dag.SetDependency(task2, task1)
+	dag1.AddTask(task2)
+	dag1.SetDependency(task2, task1)
 
-	operator3 := operators.CreatePythonOperator()
-	operator3.SetSrc("../sample-src/mockup.py")
-	operator3.AddArgument("--name", "world")
+	operator3 := operators.CreateBashOperator()
+	operator3.SetCmd("echo 1")
 	task3, _ := task.CreateTask(operator3, "Third Python Task")
-	dag.AddTask(task3)
-	dag.SetDependency(task3, task2)
+	dag1.AddTask(task3)
+	dag1.SetDependency(task3, task2)
 
-	dag.RunDag()
+	operator4 := operators.CreateBashOperator()
+	operator4.SetCmd("echo 1")
+	task4, _ := task.CreateTask(operator4, "Fourth Python Task")
+	dag1.AddTask(task4)
+	dag1.SetDependency(task4, task2)
 
-	for uuid, status := range dag.GetAllTaskStatus() {
-		fmt.Printf("%s : %s \n", uuid.String(), status)
-	}
+	dag.ScheduleDag("*/3 * * * * *)", dag1)
 }
