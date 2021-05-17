@@ -15,7 +15,7 @@ func TestRunDagSequentialSuccess(t *testing.T) {
 	dag.AddTask(task2)
 	dag.SetDependency(task2, task1)*/
 
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("sequential_success_dag")
 
 	operator1 := operators.CreateBashOperator()
 	operator1.SetCmd("ls -lah")
@@ -46,7 +46,7 @@ func TestRunDagSequentialSuccess(t *testing.T) {
 }
 
 func TestRunDagParallelSuccess(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("parallel_success_dag")
 
 	operator1 := operators.CreateBashOperator()
 	operator1.SetCmd("ls -lah")
@@ -107,7 +107,7 @@ func TestRunDagParallelSuccess(t *testing.T) {
 }
 
 func TestRunDagSequentialFail(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("sequantial_fail_dag")
 
 	operator1 := operators.CreateBashOperator()
 	operator1.SetCmd("ls -lah")
@@ -146,7 +146,7 @@ func TestRunDagSequentialFail(t *testing.T) {
 }
 
 func TestRunDagParallelFail(t *testing.T) {
-	dag, _ := CreateDag("my_dag")
+	dag, _ := CreateDag("parallel_dag_fail")
 
 	operator1 := operators.CreateBashOperator()
 	operator1.SetCmd("ls -lah")
