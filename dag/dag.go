@@ -40,6 +40,22 @@ func CreateDag(dagName string) (*Dag, error) {
 	}, nil
 }
 
+func (d *Dag) GetTaskLevel() map[uuid.UUID]int {
+	dagLevel := make(map[uuid.UUID]int)
+
+	for uuid, task := range d.tasks {
+		if len(task.dependencies) == 0 {
+			dagLevel[uuid] = 0
+			continue
+		}
+		for _, dependency := range task.dependencies {
+			parentLevel := dagLevel[dependency]
+			dagLevel[uuid] = parentLevel + 1
+		}
+	}
+	return dagLevel
+}
+
 func (d *Dag) AddTask(task *task.Task) {
 	newTask := DagTask{task, []uuid.UUID{}}
 	d.tasks[task.GetUuid()] = newTask
@@ -96,4 +112,8 @@ func (d *Dag) GetTaskStatus(taskName string) (string, error) {
 		}
 	}
 	return "", errors.New("ERROR TASK %s DOESN'T EXISTS")
+}
+
+func (d *Dag) GetUUID() uuid.UUID {
+	return d.uuid
 }

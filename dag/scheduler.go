@@ -6,16 +6,33 @@ import (
 	"github.com/robfig/cron"
 )
 
-func ScheduleDag(cronFormat string, dag *Dag) *cron.Cron {
-	c := cron.New() // Create a new timed task object
+type DagScheduler struct {
+	dag  *Dag
+	cron *cron.Cron
+}
 
-	c.AddFunc("*/3 * * * * *", func() {
+func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
+
+	c := cron.New()
+
+	c.AddFunc(cronFormat, func() {
 		func() {
 			dag.RunDag()
 			fmt.Println("finish", dag.name)
 		}()
-
 	})
-	c.Start()
+
+	return &DagScheduler{
+		dag:  dag,
+		cron: c,
+	}
+}
+
+func (s *DagScheduler) RunScheduler() {
+	s.cron.Start()
 	select {}
+}
+
+func (s *DagScheduler) Stop() {
+	s.cron.Stop()
 }
