@@ -32,5 +32,15 @@ func main() {
 	dag1.AddTask(task4)
 	dag1.SetDependency(task4, task2)
 
-	dag.ScheduleDag("*/3 * * * * *)", dag1)
+	//dag.ScheduleDag("*/3 * * * * *)", dag1)
+
+	scheduler := dag.NewScheduler(dag1, "*/3 * * * * *")
+
+	go func() {
+		scheduler.RunScheduler()
+	}()
+	sum := 0
+	for {
+		sum++
+	}
 }
