@@ -3,6 +3,7 @@ package dag
 import (
 	"errors"
 	"gows/task"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -21,22 +22,24 @@ type DagTask struct {
 }
 
 type Dag struct {
-	uuid   uuid.UUID
-	name   string
-	status string
-	tasks  map[uuid.UUID]DagTask
+	uuid         uuid.UUID
+	name         string
+	status       string
+	tasks        map[uuid.UUID]DagTask
+	DagScheduler *DagScheduler
+	lastRunTime  time.Time
 }
 
 func CreateDag(dagName string) (*Dag, error) {
 	if dagName == "" {
-		return nil, errors.New("Error the Dag name provided was empty")
+		return nil, errors.New("ERROR: the Dag name provided was empty")
 	}
-	taskUUID := uuid.New()
+	UUID := uuid.New()
 	return &Dag{
-		taskUUID,
-		dagName,
-		DefaultStatus,
-		map[uuid.UUID]DagTask{},
+		uuid:   UUID,
+		name:   dagName,
+		status: DefaultStatus,
+		tasks:  map[uuid.UUID]DagTask{},
 	}, nil
 }
 
@@ -79,6 +82,10 @@ func (d *Dag) GetAllTasks() []*task.Task {
 	return allTasks
 }
 
+func (d *Dag) SetScheduler(cronFormat string) {
+	d.DagScheduler = NewScheduler(d, cronFormat)
+}
+
 func (d *Dag) SetDependency(task *task.Task, dependencyTask *task.Task) {
 	dagTasksRef := d.tasks[task.GetUuid()]
 	dagTasksRef.dependencies = append(dagTasksRef.dependencies, dependencyTask.GetUuid())
@@ -111,9 +118,13 @@ func (d *Dag) GetTaskStatus(taskName string) (string, error) {
 			return status, nil
 		}
 	}
-	return "", errors.New("ERROR TASK %s DOESN'T EXISTS")
+	return "", errors.New("ERROR: Task %s doesn't exist")
 }
 
 func (d *Dag) GetUUID() uuid.UUID {
 	return d.uuid
+}
+
+func (d *Dag) setTime() {
+	d.lastRunTime = time.Now()
 }

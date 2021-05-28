@@ -1,7 +1,9 @@
 package dag
 
 import (
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/robfig/cron"
 )
@@ -17,8 +19,8 @@ func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
 
 	c.AddFunc(cronFormat, func() {
 		func() {
+			fmt.Println("INFO: Start dag", dag.name, "at", time.Now())
 			dag.RunDag()
-			fmt.Println("finish", dag.name)
 		}()
 	})
 
@@ -28,7 +30,10 @@ func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
 	}
 }
 
-func (s *DagScheduler) RunScheduler() {
+func (s *DagScheduler) RunScheduler() error {
+	if s == nil {
+		return errors.New("ERROR: scheduler is not properly set")
+	}
 	s.cron.Start()
 	select {}
 }
