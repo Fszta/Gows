@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"gows/dag"
 	"gows/operators"
 	"gows/task"
@@ -27,20 +28,22 @@ func main() {
 	dag1.SetDependency(task3, task2)
 
 	operator4 := operators.CreateBashOperator()
-	operator4.SetCmd("echo 1")
+	operator4.SetCmd("sleep 1")
 	task4, _ := task.CreateTask(operator4, "Fourth Python Task")
 	dag1.AddTask(task4)
 	dag1.SetDependency(task4, task2)
 
-	//dag.ScheduleDag("*/3 * * * * *)", dag1)
-
-	scheduler := dag.NewScheduler(dag1, "*/3 * * * * *")
+	dag1.SetScheduler("*/3 * * * * *")
 
 	go func() {
-		scheduler.RunScheduler()
+		err := dag1.DagScheduler.RunScheduler()
+		if err != nil {
+			fmt.Println(err)
+		}
 	}()
 	sum := 0
 	for {
 		sum++
 	}
+
 }
