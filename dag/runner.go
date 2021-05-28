@@ -2,6 +2,7 @@ package dag
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -47,6 +48,9 @@ func (d *Dag) RunDependentTask(tasks map[uuid.UUID]DagTask, dagChannel, failChan
 }
 
 func (d *Dag) RunDag() {
+	d.resetDagStatus()
+	d.setTime()
+
 	successChannel := make(chan uuid.UUID)
 	cancelChannel := make(chan uuid.UUID)
 	failChannel := make(chan uuid.UUID)
@@ -61,6 +65,7 @@ func (d *Dag) RunDag() {
 		case successfulTaskUUID := <-successChannel:
 			delete(remainingTasks, successfulTaskUUID)
 			if len(remainingTasks) == 0 {
+				fmt.Println("INFO: Dag ended at ", time.Now())
 				return
 			}
 			go d.RunDependentTask(remainingTasks, successChannel, failChannel, cancelChannel)
@@ -77,6 +82,7 @@ func (d *Dag) RunDag() {
 			// Cancel tasks which depends on failedTaskUUID
 			d.cancelDependenciesTask(remainingTasks, failedTaskUUID)
 			if len(remainingTasks) == 0 {
+				fmt.Println("INFO: Dag ended at ", time.Now())
 				return
 			}
 		}
@@ -93,6 +99,12 @@ func (d *Dag) cancelDependenciesTask(remainingTasks map[uuid.UUID]DagTask, cance
 				delete(remainingTasks, task.task.GetUuid())
 			}
 		}
+	}
+}
+
+func (d *Dag) resetDagStatus() {
+	for _, task := range d.tasks {
+		task.task.UpdateStatus(DefaultStatus)
 	}
 }
 
