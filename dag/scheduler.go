@@ -31,6 +31,7 @@ func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
 }
 
 func (s *DagScheduler) RunScheduler() error {
+	fmt.Println("Start scheduler ", time.Now())
 	if s == nil {
 		return errors.New("ERROR: scheduler is not properly set")
 	}
