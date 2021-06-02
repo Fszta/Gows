@@ -1,5 +1,5 @@
 package global
 
-import "gows/dag"
+import "com.github/Fszta/gows/pkg/dag"
 
 var DagHandler = &dag.DagHandler{}
