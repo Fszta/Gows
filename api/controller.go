@@ -3,12 +3,13 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"gows/dag"
-	"gows/global"
-	"gows/operators"
-	"gows/task"
 	"net/http"
 	"time"
+
+	"com.github/Fszta/gows/global"
+	"com.github/Fszta/gows/pkg/dag"
+	"com.github/Fszta/gows/pkg/operators"
+	"com.github/Fszta/gows/pkg/task"
 )
 
 func AddDag(w http.ResponseWriter, req *http.Request) {

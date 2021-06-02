@@ -2,9 +2,11 @@
 package cmd
 
 import (
-	"gows/api"
-	"gows/dag"
-	"gows/global"
+	"com.github/Fszta/gows/pkg/dag"
+
+	"com.github/Fszta/gows/global"
+
+	"com.github/Fszta/gows/api"
 
 	"github.com/spf13/cobra"
 )

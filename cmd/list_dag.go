@@ -3,12 +3,13 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"gows/dag"
-	"gows/global"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"text/tabwriter"
+
+	"com.github/Fszta/gows/global"
+	"com.github/Fszta/gows/pkg/dag"
 
 	"github.com/spf13/cobra"
 )
