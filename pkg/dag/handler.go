@@ -1,11 +1,13 @@
 package dag
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 )
 
 type DagHandler struct {
-	dags map[uuid.UUID]*Dag
+	dags map[string]*Dag
 }
 
 type DagInfo struct {
@@ -17,16 +19,20 @@ type DagInfo struct {
 
 func NewHandler() *DagHandler {
 	return &DagHandler{
-		dags: make(map[uuid.UUID]*Dag),
+		dags: make(map[string]*Dag),
 	}
 }
 
 func (dh *DagHandler) AddDag(dag *Dag) {
-	dh.dags[dag.uuid] = dag
+	dh.dags[dag.uuid.String()] = dag
 }
 
-func (dh *DagHandler) RemoveDag(dagUUID uuid.UUID) {
-	delete(dh.dags, dagUUID)
+func (dh *DagHandler) RemoveDag(dagUUID string) error {
+	if _, ok := dh.dags[dagUUID]; ok {
+		delete(dh.dags, dagUUID)
+		return nil
+	}
+	return fmt.Errorf("Dag %v not found", dagUUID)
 }
 
 func (dh *DagHandler) ScheduleDag(cronFormat string, dag *Dag) {
@@ -49,5 +55,5 @@ func (dh *DagHandler) ListDag() []DagInfo {
 }
 
 func (dh *DagHandler) TriggerDag(dagUUID uuid.UUID) {
-	dh.dags[dagUUID].RunDag()
+	dh.dags[dagUUID.String()].RunDag()
 }

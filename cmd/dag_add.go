@@ -19,7 +19,7 @@ var addDagCmd = &cobra.Command{
 	Short: "Add a new dag from json file",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("Add dag: %v based on file %v at %v \n", name, file, time.Now().String())
-		_, err := http.Get("http://0.0.0.0:2128/add")
+		_, err := http.Get("http://localhost:2128/add")
 		if err != nil {
 			log.Fatalln(err)
 		}

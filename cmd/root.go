@@ -25,4 +25,6 @@ func init() {
 	cobra.OnInitialize(initConfig)
 }
 
-func initConfig() {}
+func initConfig() {
+	
+}

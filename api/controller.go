@@ -20,7 +20,6 @@ func AddDag(w http.ResponseWriter, req *http.Request) {
 	task1, _ := task.CreateTask(operator1, "First Bash Task")
 	dag1.AddTask(task1)
 	dag1.SetScheduler("*/3 * * * * *")
-
 	global.DagHandler.AddDag(dag1)
 }
 
@@ -35,4 +34,15 @@ func ListDag(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(dagsJson)
+}
+
+func RemoveDag(w http.ResponseWriter, req *http.Request) {
+	uuid := req.FormValue("uuid")
+	if uuid == "" {
+		http.Error(w, "Missing uuid parameter", http.StatusBadRequest)
+	}
+
+	
+	global.DagHandler.RemoveDag(uuid)
+	w.WriteHeader(http.StatusOK)
 }

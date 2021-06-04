@@ -13,5 +13,5 @@ func Start() {
 	http.HandleFunc("/add", AddDag)
 	http.HandleFunc("/list", ListDag)
 	log.Printf("Server started at port %v", port)
-	log.Fatal(http.ListenAndServe(":"+port, handler))
+	log.Fatal(http.ListenAndServe("localhost:"+port, handler))
 }
