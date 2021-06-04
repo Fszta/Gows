@@ -29,10 +29,10 @@ func ListDag(w http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(dagsJson)
 }
 
@@ -42,7 +42,8 @@ func RemoveDag(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Missing uuid parameter", http.StatusBadRequest)
 	}
 
-	
-	global.DagHandler.RemoveDag(uuid)
-	w.WriteHeader(http.StatusOK)
+	err := global.DagHandler.RemoveDag(uuid)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
 }

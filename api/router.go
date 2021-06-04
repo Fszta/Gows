@@ -9,6 +9,7 @@ func Routing() *mux.Router {
 
 	router.HandleFunc("/add", AddDag)
 	router.HandleFunc("/list", ListDag)
-	
+	router.HandleFunc("/remove", RemoveDag)
+
 	return router
 }
