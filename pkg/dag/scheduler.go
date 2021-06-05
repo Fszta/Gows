@@ -9,8 +9,9 @@ import (
 )
 
 type DagScheduler struct {
-	dag  *Dag
-	cron *cron.Cron
+	dag         *Dag
+	cron        *cron.Cron
+	isScheduled bool
 }
 
 func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
@@ -23,8 +24,9 @@ func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
 	})
 
 	return &DagScheduler{
-		dag:  dag,
-		cron: c,
+		dag:         dag,
+		cron:        c,
+		isScheduled: false,
 	}
 }
 
@@ -33,12 +35,13 @@ func (s *DagScheduler) RunScheduler() error {
 	if s == nil {
 		return errors.New("ERROR: scheduler is not properly set")
 	}
+	s.isScheduled = true
 	s.cron.Start()
 	return nil
-	//select {}
 }
 
 func (s *DagScheduler) stop() {
 	fmt.Println("INFO: Stop dag at ", time.Now())
+	s.isScheduled = false
 	s.cron.Stop()
 }

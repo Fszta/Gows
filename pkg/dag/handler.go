@@ -62,6 +62,11 @@ func (dh *DagHandler) ListDag() []DagInfo {
 func (dh *DagHandler) TriggerDag(dagUUID string) error {
 	if _, ok := dh.Dags[dagUUID]; ok {
 		fmt.Println("INFO: Trigger dag", dagUUID)
+
+		if dh.Dags[dagUUID].DagScheduler.isScheduled {
+			fmt.Printf("WARN: Dag %v has been triggered while already scheduled \n", dagUUID)
+		}
+
 		dh.Dags[dagUUID].RunDag()
 		return nil
 	}
