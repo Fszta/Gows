@@ -4,12 +4,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var (
+	AddDagRoute    = "/dag/add"
+	ListDagsRoute  = "/dag/list"
+	RemoveDagRoute = "/dag/remove"
+	StopDagRoute   = "/dag/stop"
+)
+
 func Routing() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.HandleFunc("/add", AddDag)
-	router.HandleFunc("/list", ListDag)
-	router.HandleFunc("/remove", RemoveDag)
+	router.HandleFunc(AddDagRoute, AddDag)
+	router.HandleFunc(ListDagsRoute, ListDag)
+	router.HandleFunc(RemoveDagRoute, RemoveDag)
+	router.HandleFunc(StopDagRoute, StopDag)
 
 	return router
 }

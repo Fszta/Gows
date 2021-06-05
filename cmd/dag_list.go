@@ -8,18 +8,25 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"com.github/Fszta/gows/api"
 	"com.github/Fszta/gows/pkg/dag"
 	"github.com/spf13/cobra"
 )
 
-var quiet bool
+var (
+	minWidth int  = 0
+	tabWidth int  = 8
+	padding  int  = 1
+	padchar  byte = '\t'
+	quiet    bool
+)
 
 var listDagsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "List dags",
 	Run: func(cmd *cobra.Command, args []string) {
 		var dagsInfo []dag.DagInfo
-		r, err := http.Get("http://localhost:2128/list")
+		r, err := http.Get("http://localhost:2128" + api.ListDagsRoute)
 
 		if err != nil {
 			fmt.Println(err)
@@ -32,7 +39,7 @@ var listDagsCmd = &cobra.Command{
 			fmt.Println(err)
 		}
 
-		writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
+		writer := tabwriter.NewWriter(os.Stdout, minWidth, tabWidth, padding, padchar, tabwriter.AlignRight)
 
 		if quiet {
 			for _, info := range dagsInfo {

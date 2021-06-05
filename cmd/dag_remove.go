@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"com.github/Fszta/gows/api"
 	"github.com/spf13/cobra"
 )
 
@@ -14,11 +15,12 @@ var removeDagCmd = &cobra.Command{
 	Use:   "rm",
 	Short: "Remove a dag",
 	Run: func(cmd *cobra.Command, args []string) {
-		response, err := http.Get("http://localhost:2128/remove?uuid=" + dagUUID)
+		response, err := http.Get("http://localhost:2128" + api.RemoveDagRoute + "?uuid=" + dagUUID)
+
 		if err != nil {
 			log.Fatalln(err)
 		}
-		if response.StatusCode == http.StatusAccepted {
+		if response.StatusCode == http.StatusOK {
 			fmt.Printf("Dag %v has been successfully removed\n", dagUUID)
 		}
 
