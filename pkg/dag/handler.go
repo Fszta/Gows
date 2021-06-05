@@ -7,7 +7,7 @@ import (
 )
 
 type DagHandler struct {
-	dags map[string]*Dag
+	Dags map[string]*Dag
 }
 
 type DagInfo struct {
@@ -19,30 +19,37 @@ type DagInfo struct {
 
 func NewHandler() *DagHandler {
 	return &DagHandler{
-		dags: make(map[string]*Dag),
+		Dags: make(map[string]*Dag),
 	}
 }
 
 func (dh *DagHandler) AddDag(dag *Dag) {
-	dh.dags[dag.uuid.String()] = dag
+	dh.Dags[dag.uuid.String()] = dag
 }
 
 func (dh *DagHandler) RemoveDag(dagUUID string) error {
-	if _, ok := dh.dags[dagUUID]; ok {
-		delete(dh.dags, dagUUID)
+	fmt.Println("INFO: Try to remove dag", dagUUID)
+	if _, ok := dh.Dags[dagUUID]; ok {
+		dh.StopDagScheduling(dagUUID)
+		delete(dh.Dags, dagUUID)
+		fmt.Println("INFO: Successfully remove dag", dagUUID)
 		return nil
 	}
 	return fmt.Errorf("Dag %v not found", dagUUID)
 }
 
-func (dh *DagHandler) ScheduleDag(cronFormat string, dag *Dag) {
+func (dh *DagHandler) StopDagScheduling(dagUUID string) error {
+	fmt.Println("INFO: Try to stop scheduling for dag", dagUUID)
+	if _, ok := dh.Dags[dagUUID]; ok {
+		dh.Dags[dagUUID].DagScheduler.stop()
+		return nil
+	}
+	return fmt.Errorf("Dag %v not found", dagUUID)
 }
-
-func (dh *DagHandler) StopDagScheduling(dagUUID uuid.UUID) {}
 
 func (dh *DagHandler) ListDag() []DagInfo {
 	var dags []DagInfo
-	for _, dag := range dh.dags {
+	for _, dag := range dh.Dags {
 		dagInfo := DagInfo{
 			Name:        dag.name,
 			UUID:        dag.uuid.String(),
@@ -55,5 +62,5 @@ func (dh *DagHandler) ListDag() []DagInfo {
 }
 
 func (dh *DagHandler) TriggerDag(dagUUID uuid.UUID) {
-	dh.dags[dagUUID.String()].RunDag()
+	dh.Dags[dagUUID.String()].RunDag()
 }

@@ -56,6 +56,7 @@ func (d *Dag) RunDag() {
 	failChannel := make(chan uuid.UUID)
 	remainingTasks := copyTasksMap(d.tasks)
 
+	d.status = RunningStatus
 	// Run top level tasks
 	d.RunTaskWithoutDependencies(remainingTasks, successChannel, failChannel)
 
@@ -66,6 +67,7 @@ func (d *Dag) RunDag() {
 			delete(remainingTasks, successfulTaskUUID)
 			if len(remainingTasks) == 0 {
 				fmt.Println("INFO: Dag ended at ", time.Now())
+				d.status = SuccessStatus // TODO check all task status
 				return
 			}
 			go d.RunDependentTask(remainingTasks, successChannel, failChannel, cancelChannel)
@@ -83,6 +85,7 @@ func (d *Dag) RunDag() {
 			d.cancelDependenciesTask(remainingTasks, failedTaskUUID)
 			if len(remainingTasks) == 0 {
 				fmt.Println("INFO: Dag ended at ", time.Now())
+				d.status = FailStatus
 				return
 			}
 		}
