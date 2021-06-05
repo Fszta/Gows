@@ -1,6 +1,8 @@
 package task
 
 import (
+	"fmt"
+
 	"com.github/Fszta/gows/pkg/operators"
 
 	"github.com/google/uuid"
@@ -39,11 +41,13 @@ func (t *Task) Run(successChannel chan uuid.UUID, failChannel chan uuid.UUID) er
 	if err != nil {
 		t.setLogs(err.Error())
 		t.UpdateStatus(failStatus)
+		fmt.Printf("ERROR: Task %v failed \n", t.name)
 		failChannel <- t.uuid
 		return err
 	}
 	t.UpdateStatus(successStatus)
 	t.setLogs(logs)
+	fmt.Printf("INFO: Task %v successfully ended \n", t.name)
 	successChannel <- t.uuid
 
 	return nil
