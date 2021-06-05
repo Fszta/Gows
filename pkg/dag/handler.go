@@ -2,8 +2,6 @@ package dag
 
 import (
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
 type DagHandler struct {
@@ -61,6 +59,11 @@ func (dh *DagHandler) ListDag() []DagInfo {
 	return dags
 }
 
-func (dh *DagHandler) TriggerDag(dagUUID uuid.UUID) {
-	dh.Dags[dagUUID.String()].RunDag()
+func (dh *DagHandler) TriggerDag(dagUUID string) error {
+	if _, ok := dh.Dags[dagUUID]; ok {
+		fmt.Println("INFO: Trigger dag", dagUUID)
+		dh.Dags[dagUUID].RunDag()
+		return nil
+	}
+	return fmt.Errorf("Dag %v not found", dagUUID)
 }

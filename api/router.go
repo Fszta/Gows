@@ -9,6 +9,7 @@ var (
 	ListDagsRoute  = "/dag/list"
 	RemoveDagRoute = "/dag/remove"
 	StopDagRoute   = "/dag/stop"
+	TriggerDagRoute = "/dag/trigger"
 )
 
 func Routing() *mux.Router {
@@ -18,6 +19,7 @@ func Routing() *mux.Router {
 	router.HandleFunc(ListDagsRoute, ListDag)
 	router.HandleFunc(RemoveDagRoute, RemoveDag)
 	router.HandleFunc(StopDagRoute, StopDag)
+	router.HandleFunc(TriggerDagRoute, TriggerDag)
 
 	return router
 }

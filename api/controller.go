@@ -61,3 +61,15 @@ func StopDag(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	}
 }
+
+func TriggerDag(w http.ResponseWriter, req *http.Request) {
+	uuid := req.FormValue("uuid")
+	if uuid == "" {
+		http.Error(w, "Missing uuid parameter", http.StatusBadRequest)
+	}
+	err := global.DagHandler.TriggerDag(uuid)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+	w.WriteHeader(http.StatusOK)
+}
