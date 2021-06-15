@@ -45,6 +45,16 @@ func (dh *DagHandler) StopDagScheduling(dagUUID string) error {
 	return fmt.Errorf("Dag %v not found", dagUUID)
 }
 
+func (dh *DagHandler) StartDagScheduling(dagUUID string) error {
+	fmt.Println("INFO: Try to start scheduling for dag", dagUUID)
+	if _, ok := dh.Dags[dagUUID]; ok {
+		dh.Dags[dagUUID].DagScheduler.RunScheduler()
+		return nil
+	}
+	return fmt.Errorf("Dag %v not found", dagUUID)
+}
+
+
 func (dh *DagHandler) ListDag() []DagInfo {
 	var dags []DagInfo
 	for _, dag := range dh.Dags {
