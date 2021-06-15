@@ -15,6 +15,12 @@ type DagInfo struct {
 	Status      string `json:"status"`
 }
 
+type TaskInfo struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	UUID   string `json:"uuid"`
+}
+
 func NewHandler() *DagHandler {
 	return &DagHandler{
 		Dags: make(map[string]*Dag),
@@ -54,7 +60,6 @@ func (dh *DagHandler) StartDagScheduling(dagUUID string) error {
 	return fmt.Errorf("Dag %v not found", dagUUID)
 }
 
-
 func (dh *DagHandler) ListDag() []DagInfo {
 	var dags []DagInfo
 	for _, dag := range dh.Dags {
@@ -81,4 +86,26 @@ func (dh *DagHandler) TriggerDag(dagUUID string) error {
 		return nil
 	}
 	return fmt.Errorf("Dag %v not found", dagUUID)
+}
+
+func (dh *DagHandler) GetDagTasks(dagUUID string) ([]TaskInfo, error) {
+	if _, ok := dh.Dags[dagUUID]; ok {
+		fmt.Println("INFO: Retrieve tasks list from dag", dagUUID)
+
+		tasks := dh.Dags[dagUUID].GetAllTasks()
+
+		var tasksInfo []TaskInfo
+
+		for _, task := range tasks {
+			taskInfo := TaskInfo{
+				Name:   task.GetName(),
+				Status: task.GetStatus(),
+				UUID:   task.GetUuid().String(),
+			}
+			tasksInfo = append(tasksInfo, taskInfo)
+		}
+
+		return tasksInfo, nil
+	}
+	return nil, fmt.Errorf("Dag %v not found", dagUUID)
 }

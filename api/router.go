@@ -5,12 +5,13 @@ import (
 )
 
 var (
-	AddDagRoute     = "/dag/add"
-	ListDagsRoute   = "/dag/list"
-	RemoveDagRoute  = "/dag/remove"
-	StopDagRoute    = "/dag/stop"
-	TriggerDagRoute = "/dag/trigger"
-	RestartDagRoute = "/dag/restart"
+	AddDagRoute      = "/dag/add"
+	ListDagsRoute    = "/dag/list"
+	RemoveDagRoute   = "/dag/remove"
+	StopDagRoute     = "/dag/stop"
+	TriggerDagRoute  = "/dag/trigger"
+	RestartDagRoute  = "/dag/restart"
+	GetDagTasksRoute = "/task/list"
 )
 
 func Routing() *mux.Router {
@@ -22,6 +23,7 @@ func Routing() *mux.Router {
 	router.HandleFunc(StopDagRoute, StopDag)
 	router.HandleFunc(TriggerDagRoute, TriggerDag)
 	router.HandleFunc(RestartDagRoute, RestartDag)
+	router.HandleFunc(GetDagTasksRoute, GetDagTasks)
 
 	return router
 }

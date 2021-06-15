@@ -16,7 +16,7 @@ import (
 var (
 	minWidth int  = 0
 	tabWidth int  = 8
-	padding  int  = 1
+	padding  int  = 3
 	padchar  byte = '\t'
 	quiet    bool
 )

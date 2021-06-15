@@ -19,6 +19,12 @@ func AddDag(w http.ResponseWriter, req *http.Request) {
 	operator1.SetCmd("sleep 1")
 	task1, _ := task.CreateTask(operator1, "First Bash Task")
 	dag1.AddTask(task1)
+
+	operator2 := operators.CreateBashOperator()
+	operator2.SetCmd("sleep 1")
+	task2, _ := task.CreateTask(operator2, "Second Bash Task")
+	dag1.AddTask(task2)
+
 	dag1.SetScheduler("*/3 * * * * *")
 	global.DagHandler.AddDag(dag1)
 	global.DagHandler.Dags[dag1.GetUUID().String()].DagScheduler.RunScheduler()
@@ -83,4 +89,25 @@ func RestartDag(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 	}
+}
+
+func GetDagTasks(w http.ResponseWriter, req *http.Request) {
+	uuid := req.FormValue("uuid")
+	if uuid == "" {
+		http.Error(w, "Missing uuid parameter", http.StatusBadRequest)
+	}
+	tasksInfo, err := global.DagHandler.GetDagTasks(uuid)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	tasksJson, err := json.Marshal(tasksInfo)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(tasksJson)
 }
