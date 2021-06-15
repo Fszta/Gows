@@ -73,3 +73,14 @@ func TriggerDag(w http.ResponseWriter, req *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 }
+
+func RestartDag(w http.ResponseWriter, req *http.Request) {
+	uuid := req.FormValue("uuid")
+	if uuid == "" {
+		http.Error(w, "Missing uuid parameter", http.StatusBadRequest)
+	}
+	err := global.DagHandler.StartDagScheduling(uuid)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+}

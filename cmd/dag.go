@@ -19,4 +19,5 @@ func init() {
 	dagCmd.AddCommand(stopDagCmd)
 	dagCmd.AddCommand(triggerDagCmd)
 	dagCmd.AddCommand(listDagsCmd)
+	dagCmd.AddCommand(restartDagCmd)
 }
