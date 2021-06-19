@@ -1,13 +1,11 @@
 [Unit]
 Description=Gows daemon
-After=network.target
-StartLimitIntervalSec=0
+
 [Service]
 Type=simple
 Restart=always
-RestartSec=1
-User=$USER
-ExecStart=/usr/bin/local/gows start
+RestartSec=10
+ExecStart=/usr/local/bin/gows start
 
 [Install]
 WantedBy=multi-user.target
