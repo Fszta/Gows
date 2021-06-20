@@ -4,30 +4,42 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"com.github/Fszta/gows/global"
 	"com.github/Fszta/gows/pkg/dag"
-	"com.github/Fszta/gows/pkg/operators"
-	"com.github/Fszta/gows/pkg/task"
 )
 
 func AddDag(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("Add dag:", time.Now().String())
-	dag1, _ := dag.CreateDag("my_dag1")
-	operator1 := operators.CreateBashOperator()
-	operator1.SetCmd("sleep 1")
-	task1, _ := task.CreateTask(operator1, "First Bash Task")
-	dag1.AddTask(task1)
+	dagConfigFile := req.FormValue("file")
 
-	operator2 := operators.CreateBashOperator()
-	operator2.SetCmd("sleep 1")
-	task2, _ := task.CreateTask(operator2, "Second Bash Task")
-	dag1.AddTask(task2)
+	fmt.Println(dagConfigFile)
+	if dagConfigFile == "" {
+		http.Error(w, "Missing file parameter", http.StatusBadRequest)
+	}
 
-	dag1.SetScheduler("*/3 * * * * *")
-	global.DagHandler.AddDag(dag1)
-	global.DagHandler.Dags[dag1.GetUUID().String()].DagScheduler.RunScheduler()
+	dagConfigJson, err := dag.ReadDagConfig(dagConfigFile)
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("File %v not found", dagConfigFile), http.StatusNotFound)
+		return
+	}
+
+	config, err := dag.UnmarshalDagConfig(dagConfigJson)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotAcceptable)
+		return
+	}
+
+	dag, err := dag.GetDagFromConfig(config)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotAcceptable)
+		return
+	}
+
+	global.DagHandler.AddDag(dag)
+	global.DagHandler.Dags[dag.GetUUID().String()].DagScheduler.RunScheduler()
 
 	w.WriteHeader(http.StatusOK)
 }
