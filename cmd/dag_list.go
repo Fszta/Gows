@@ -49,9 +49,9 @@ var listDagsCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Fprintln(writer, "NAME\tSTATUS\tLAST-RUNTIME\tID")
+		fmt.Fprintln(writer, "NAME\tSTATUS\tLAST-RUNTIME\tID\tSCHEDULER")
 		for _, info := range dagsInfo {
-			fmt.Fprintf(writer, "%v\t%v\t%v\t%v\n", info.Name, info.Status, info.LastRunTime, info.UUID)
+			fmt.Fprintf(writer, "%v\t%v\t%v\t%v\t%v\n", info.Name, info.Status, info.LastRunTime, info.UUID, info.SchedulerFormat)
 			writer.Flush()
 		}
 	},

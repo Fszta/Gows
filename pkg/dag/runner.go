@@ -21,6 +21,7 @@ func (d *Dag) Run() {
 	statusChannel := make(chan task.TaskStatus)
 	remainingTasks := copyTasksMap(d.tasks)
 	aTaskFinish := false
+	d.setTime()
 
 	d.resetDagStatus()
 	d.RunTaskWithoutDependencies(remainingTasks, statusChannel)

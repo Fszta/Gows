@@ -4,15 +4,18 @@ import (
 	"fmt"
 )
 
+var timeFormat = "2006-01-02 15:04:05"
+
 type DagHandler struct {
 	Dags map[string]*Dag
 }
 
 type DagInfo struct {
-	Name        string `json:"name"`
-	UUID        string `json:"uuid"`
-	LastRunTime string `json:"lastRunTime"`
-	Status      string `json:"status"`
+	Name            string `json:"name"`
+	UUID            string `json:"uuid"`
+	LastRunTime     string `json:"lastRunTime"`
+	Status          string `json:"status"`
+	SchedulerFormat string `json:"scheduler"`
 }
 
 type TaskInfo struct {
@@ -64,10 +67,11 @@ func (dh *DagHandler) ListDag() []DagInfo {
 	var dags []DagInfo
 	for _, dag := range dh.Dags {
 		dagInfo := DagInfo{
-			Name:        dag.name,
-			UUID:        dag.uuid.String(),
-			LastRunTime: dag.lastRunTime.String(),
-			Status:      dag.status,
+			Name:            dag.name,
+			UUID:            dag.uuid.String(),
+			LastRunTime:     dag.lastRunTime.Format(timeFormat),
+			Status:          dag.status,
+			SchedulerFormat: dag.GetSchedulerFormat(),
 		}
 		dags = append(dags, dagInfo)
 	}

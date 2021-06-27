@@ -12,6 +12,7 @@ type DagScheduler struct {
 	dag         *Dag
 	cron        *cron.Cron
 	isScheduled bool
+	cronFormat  string
 }
 
 func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
@@ -27,6 +28,7 @@ func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
 		dag:         dag,
 		cron:        c,
 		isScheduled: false,
+		cronFormat:  cronFormat,
 	}
 }
 

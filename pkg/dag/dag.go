@@ -87,6 +87,10 @@ func (d *Dag) SetScheduler(cronFormat string) {
 	d.DagScheduler = NewScheduler(d, cronFormat)
 }
 
+func (d *Dag) GetSchedulerFormat() string {
+	return d.DagScheduler.cronFormat
+}
+
 func (d *Dag) SetDependency(task *task.Task, dependencyTask *task.Task) {
 	dagTasksRef := d.tasks[task.GetUuid()]
 	dagTasksRef.dependencies = append(dagTasksRef.dependencies, dependencyTask.GetUuid())
@@ -119,7 +123,7 @@ func (d *Dag) GetTaskStatus(taskName string) (string, error) {
 			return status, nil
 		}
 	}
-	return "", errors.New("ERROR: Task %s doesn't exist")
+	return "", errors.New("Task %s doesn't exist")
 }
 
 func (d *Dag) GetUUID() uuid.UUID {
