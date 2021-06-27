@@ -8,23 +8,14 @@ import (
 	"github.com/google/uuid"
 )
 
-// RunTaksWithoutDependencies run dag's top level task, which have no dependencies
-func (d *Dag) RunTaskWithoutDependencies(tasks map[uuid.UUID]DagTask, statusChannel chan task.TaskStatus) {
-	for _, task := range tasks {
-		if len(task.dependencies) == 0 {
-			go task.task.Run(statusChannel)
-		}
-	}
-}
-
 func (d *Dag) Run() {
 	statusChannel := make(chan task.TaskStatus)
 	remainingTasks := copyTasksMap(d.tasks)
 	aTaskFinish := false
-	d.setTime()
 
+	d.setTime()
 	d.resetDagStatus()
-	d.RunTaskWithoutDependencies(remainingTasks, statusChannel)
+	d.runTaskWithoutDependencies(remainingTasks, statusChannel)
 
 	for {
 		if len(remainingTasks) == 0 && d.allTaskCompleted() {
@@ -33,8 +24,9 @@ func (d *Dag) Run() {
 			break
 		}
 
-		select {
-		case newTaskStatus := <-statusChannel:
+		newTaskStatus, ok := <-statusChannel
+
+		if ok {
 			aTaskFinish = true
 			d.tasks[newTaskStatus.UUID].task.UpdateStatus(newTaskStatus.Status)
 
@@ -48,19 +40,27 @@ func (d *Dag) Run() {
 			}
 		}
 
-		// check if a new task is ready
 		if aTaskFinish {
-			d.RunDependentTask(remainingTasks, statusChannel)
+			d.tryRunTaskWithDependencies(remainingTasks, statusChannel)
 			aTaskFinish = false
 		}
 	}
 }
 
-// RunDependentTask run dag's tasks which have any dependencies only
+// runTaskWithoutDependencies run dag's top level task, which have no dependencies
+func (d *Dag) runTaskWithoutDependencies(tasks map[uuid.UUID]DagTask, statusChannel chan task.TaskStatus) {
+	for _, task := range tasks {
+		if len(task.dependencies) == 0 {
+			go task.task.Run(statusChannel)
+		}
+	}
+}
+
+// tryRunTaskWithDependencies run dag's tasks which have any dependencies only
 // if the status of their dependencies is SuccessStatus
-// removes the task if any dependency is failed
+// removes the task if any dependency is failed or canceled
 // otherwise continue without doing anything
-func (d *Dag) RunDependentTask(remainingTasks map[uuid.UUID]DagTask, statusChannel chan task.TaskStatus) {
+func (d *Dag) tryRunTaskWithDependencies(remainingTasks map[uuid.UUID]DagTask, statusChannel chan task.TaskStatus) {
 	for _, remainingTask := range remainingTasks {
 		isReady := false
 		for _, dependency := range remainingTask.dependencies {
