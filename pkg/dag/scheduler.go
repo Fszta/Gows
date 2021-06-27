@@ -20,7 +20,7 @@ func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
 
 	c.AddFunc(cronFormat, func() {
 		fmt.Println("INFO: Start dag", dag.name, "at", time.Now())
-		dag.RunDag()
+		dag.Run()
 	})
 
 	return &DagScheduler{

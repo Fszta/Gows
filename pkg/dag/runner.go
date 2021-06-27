@@ -4,14 +4,53 @@ import (
 	"fmt"
 	"time"
 
+	"com.github/Fszta/gows/pkg/task"
 	"github.com/google/uuid"
 )
 
 // RunTaksWithoutDependencies run dag's top level task, which have no dependencies
-func (d *Dag) RunTaskWithoutDependencies(tasks map[uuid.UUID]DagTask, dagChannel, failChannel chan uuid.UUID) {
+func (d *Dag) RunTaskWithoutDependencies(tasks map[uuid.UUID]DagTask, statusChannel chan task.TaskStatus) {
 	for _, task := range tasks {
 		if len(task.dependencies) == 0 {
-			go task.task.Run(dagChannel, failChannel)
+			go task.task.Run(statusChannel)
+		}
+	}
+}
+
+func (d *Dag) Run() {
+	statusChannel := make(chan task.TaskStatus)
+	remainingTasks := copyTasksMap(d.tasks)
+	aTaskFinish := false
+
+	d.resetDagStatus()
+	d.RunTaskWithoutDependencies(remainingTasks, statusChannel)
+
+	for {
+		if len(remainingTasks) == 0 && d.allTaskCompleted() {
+			d.setStatus()
+			fmt.Println("INFO: Dag ended at ", time.Now())
+			break
+		}
+
+		select {
+		case newTaskStatus := <-statusChannel:
+			aTaskFinish = true
+			d.tasks[newTaskStatus.UUID].task.UpdateStatus(newTaskStatus.Status)
+
+			if newTaskStatus.Status == SuccessStatus {
+				delete(remainingTasks, newTaskStatus.UUID)
+			}
+
+			if newTaskStatus.Status == CancelStatus || newTaskStatus.Status == FailStatus {
+				delete(remainingTasks, newTaskStatus.UUID)
+				d.cancelDependenciesTask(remainingTasks, newTaskStatus.UUID, statusChannel)
+			}
+		}
+
+		// check if a new task is ready
+		if aTaskFinish {
+			d.RunDependentTask(remainingTasks, statusChannel)
+			aTaskFinish = false
 		}
 	}
 }
@@ -20,89 +59,65 @@ func (d *Dag) RunTaskWithoutDependencies(tasks map[uuid.UUID]DagTask, dagChannel
 // if the status of their dependencies is SuccessStatus
 // removes the task if any dependency is failed
 // otherwise continue without doing anything
-func (d *Dag) RunDependentTask(tasks map[uuid.UUID]DagTask, dagChannel, failChannel, cancelChannel chan uuid.UUID) {
-
-	for _, task := range tasks {
-		isReady := true
-
-		if len(task.dependencies) != 0 {
-			for _, dependencyUUID := range task.dependencies {
-				// Check if a task depends on a failed or canceled task
-				if d.tasks[dependencyUUID].task.GetStatus() == FailStatus || d.tasks[dependencyUUID].task.GetStatus() == CancelStatus {
-					cancelChannel <- dependencyUUID
-					continue
-				}
-
-				if d.tasks[dependencyUUID].task.GetStatus() != SuccessStatus {
-					isReady = false
-					break
-				}
-
+func (d *Dag) RunDependentTask(remainingTasks map[uuid.UUID]DagTask, statusChannel chan task.TaskStatus) {
+	for _, remainingTask := range remainingTasks {
+		isReady := false
+		for _, dependency := range remainingTask.dependencies {
+			if d.tasks[dependency].task.GetStatus() == SuccessStatus {
 				isReady = true
+				continue
 			}
-			if isReady && task.task.GetStatus() == DefaultStatus {
-				go task.task.Run(dagChannel, failChannel)
+
+			if d.tasks[dependency].task.GetStatus() == RunningStatus || d.tasks[dependency].task.GetStatus() == DefaultStatus {
+				isReady = false
+				continue
+			}
+
+			if d.tasks[dependency].task.GetStatus() == CancelStatus {
+				isReady = false
+				statusChannel <- task.TaskStatus{UUID: remainingTask.task.GetUuid(), Status: CancelStatus}
+				break
 			}
 		}
-	}
-}
 
-func (d *Dag) RunDag() {
-	d.resetDagStatus()
-	d.setTime()
-
-	successChannel := make(chan uuid.UUID)
-	cancelChannel := make(chan uuid.UUID)
-	failChannel := make(chan uuid.UUID)
-	remainingTasks := copyTasksMap(d.tasks)
-
-	d.status = RunningStatus
-	// Run top level tasks
-	d.RunTaskWithoutDependencies(remainingTasks, successChannel, failChannel)
-
-	for {
-		select {
-		// UUID sent by a task which ended successfully
-		case successfulTaskUUID := <-successChannel:
-			delete(remainingTasks, successfulTaskUUID)
-			if len(remainingTasks) == 0 {
-				fmt.Println("INFO: Dag ended at ", time.Now())
-				d.status = SuccessStatus // TODO check all task status
-				return
-			}
-			go d.RunDependentTask(remainingTasks, successChannel, failChannel, cancelChannel)
-
-		case canceledTaskUUID := <-cancelChannel:
-			// Cancel tasks which depends on canceledTaskUUID
-			d.cancelDependenciesTask(remainingTasks, canceledTaskUUID)
-
-		// UUID sent by a task which failed
-		case failedTaskUUID := <-failChannel:
-			// Remove failing task from remaining tasks
-			delete(remainingTasks, failedTaskUUID)
-
-			// Cancel tasks which depends on failedTaskUUID
-			d.cancelDependenciesTask(remainingTasks, failedTaskUUID)
-			if len(remainingTasks) == 0 {
-				fmt.Println("INFO: Dag ended at ", time.Now())
-				d.status = FailStatus
-				return
-			}
+		if isReady && d.tasks[remainingTask.task.GetUuid()].task.GetStatus() == DefaultStatus {
+			go remainingTask.task.Run(statusChannel)
+			delete(remainingTasks, remainingTask.task.GetUuid())
 		}
 
 	}
 }
 
-func (d *Dag) cancelDependenciesTask(remainingTasks map[uuid.UUID]DagTask, canceledTaskUUID uuid.UUID) {
-	for _, task := range remainingTasks {
-		for _, dependencyUUID := range task.dependencies {
+func (d *Dag) cancelDependenciesTask(remainingTasks map[uuid.UUID]DagTask, canceledTaskUUID uuid.UUID, statusChannel chan task.TaskStatus) {
+	for _, remaining := range remainingTasks {
+		for _, dependencyUUID := range remaining.dependencies {
 			if canceledTaskUUID == dependencyUUID {
-				fmt.Printf("remove task %s because have a canceled or failed dependency : %s\n", task.task.GetName(), d.tasks[canceledTaskUUID].task.GetName())
-				task.task.UpdateStatus(CancelStatus)
-				delete(remainingTasks, task.task.GetUuid())
+				fmt.Printf("remove task %s because have a canceled or failed dependency : %s\n", remaining.task.GetName(), d.tasks[canceledTaskUUID].task.GetName())
+				d.tasks[remaining.task.GetUuid()].task.UpdateStatus(CancelStatus)
+				delete(remainingTasks, remaining.task.GetUuid())
+				d.cancelDependenciesTask(remainingTasks, remaining.task.GetUuid(), statusChannel)
 			}
 		}
 	}
+}
+
+func (d *Dag) allTaskCompleted() bool {
+	for _, dagTask := range d.tasks {
+		if dagTask.task.GetStatus() == RunningStatus || dagTask.task.GetStatus() == DefaultStatus {
+			return false
+		}
+	}
+	return true
+}
+
+func (d *Dag) setStatus() {
+	for _, dagTask := range d.tasks {
+		if dagTask.task.GetStatus() == FailStatus {
+			d.status = FailStatus
+			return
+		}
+	}
+	d.status = SuccessStatus
 }
 
 func (d *Dag) resetDagStatus() {

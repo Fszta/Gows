@@ -82,7 +82,7 @@ func (dh *DagHandler) TriggerDag(dagUUID string) error {
 			fmt.Printf("WARN: Dag %v has been triggered while already scheduled \n", dagUUID)
 		}
 
-		dh.Dags[dagUUID].RunDag()
+		dh.Dags[dagUUID].Run()
 		return nil
 	}
 	return fmt.Errorf("Dag %v not found", dagUUID)
