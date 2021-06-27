@@ -28,7 +28,7 @@ func TestRunDagSequentialSuccess(t *testing.T) {
 	dag.AddTask(task3)
 	dag.SetDependency(task3, task2)
 
-	dag.RunDag()
+	dag.Run()
 
 	task1Status, _ := dag.GetTaskStatus("task1")
 	task2Status, _ := dag.GetTaskStatus("task2")
@@ -83,7 +83,7 @@ func TestRunDagParallelSuccess(t *testing.T) {
 	dag.AddTask(task7)
 	dag.SetMultiplesDependencies(task7, []*task.Task{task4, task5, task6})
 
-	dag.RunDag()
+	dag.Run()
 
 	task1Status, _ := dag.GetTaskStatus("task1")
 	task2Status, _ := dag.GetTaskStatus("task2")
@@ -96,7 +96,7 @@ func TestRunDagParallelSuccess(t *testing.T) {
 	if task1Status != SuccessStatus || task2Status != SuccessStatus || task3Status != SuccessStatus ||
 		task4Status != SuccessStatus || task5Status != SuccessStatus ||
 		task6Status != SuccessStatus || task7Status != SuccessStatus {
-		t.Errorf("All tasks should be successful %s %s %s", task1Status, task2Status, task3Status)
+		t.Errorf("All tasks should be successful %s %s %s %s %s %s %s", task1Status, task2Status, task3Status, task4Status, task5Status, task6Status, task7Status)
 	}
 }
 
@@ -120,7 +120,7 @@ func TestRunDagSequentialFail(t *testing.T) {
 	dag.AddTask(task3)
 	dag.SetDependency(task3, task2)
 
-	dag.RunDag()
+	dag.Run()
 
 	task1Status, _ := dag.GetTaskStatus("task1")
 	task2Status, _ := dag.GetTaskStatus("task2")
@@ -183,7 +183,7 @@ func TestRunDagParallelFail(t *testing.T) {
 	dag.AddTask(task7)
 	dag.SetMultiplesDependencies(task7, []*task.Task{task4, task5, task6})
 
-	dag.RunDag()
+	dag.Run()
 
 	task1Status, _ := dag.GetTaskStatus("task1")
 	task2Status, _ := dag.GetTaskStatus("task2")
@@ -197,7 +197,7 @@ func TestRunDagParallelFail(t *testing.T) {
 		task4Status != CancelStatus || task5Status != CancelStatus ||
 		task6Status != SuccessStatus || task7Status != CancelStatus {
 		t.Errorf(
-			"task1, task3, task6 should be succesfull, have : %s, %s, %s, task2 should be failed, have: %s, task4 and task5 should be canceled, have: %s and %s, task7 : %s ",
+			"task1, task3, task6 should be succesfull, have : %s, %s, %s, task2 should be failed, have: %s, task4 and task5 should be canceled, have: %s and %s, task7 should be cancel have : %s ",
 			task1Status, task3Status, task6Status, task2Status, task4Status, task5Status, task7Status)
 	}
 }
