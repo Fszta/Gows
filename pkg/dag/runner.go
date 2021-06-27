@@ -27,7 +27,9 @@ func (d *Dag) Run() {
 	d.RunTaskWithoutDependencies(remainingTasks, statusChannel)
 
 	for {
-		if len(remainingTasks) == 0 && d.areAllTaskCompleted() {
+		if len(remainingTasks) == 0 && d.allTaskCompleted() {
+			// set dag status
+			d.setStatus()
 			break
 		}
 
@@ -112,13 +114,23 @@ func (d *Dag) cancelDependenciesTask(remainingTasks map[uuid.UUID]DagTask, cance
 	}
 }
 
-func (d *Dag) areAllTaskCompleted() bool {
+func (d *Dag) allTaskCompleted() bool {
 	for _, dagTask := range d.tasks {
 		if dagTask.task.GetStatus() == RunningStatus || dagTask.task.GetStatus() == DefaultStatus {
 			return false
 		}
 	}
 	return true
+}
+
+func (d *Dag) setStatus() {
+	for _, dagTask := range d.tasks {
+		if dagTask.task.GetStatus() == FailStatus {
+			d.status = FailStatus
+			return
+		}
+	}
+	d.status = SuccessStatus
 }
 
 func (d *Dag) resetDagStatus() {
