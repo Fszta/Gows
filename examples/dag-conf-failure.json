@@ -1,0 +1,37 @@
+{
+   "dagName":"example",
+   "schedule":"*/3 * * * * *",
+   "tasks":[
+      {
+         "name":"bash-task-1",
+         "type":"bash",
+         "parameters":{
+            "cmd":"ls -ah"
+         }
+      },
+      {
+         "name":"bash-task-2",
+         "type":"bash",
+         "parameters":{
+            "cmd":"test.sh",
+            "arguments":[
+               {
+                  "arg":"-l",
+                  "value":""
+               },
+               {
+                  "arg":"-a",
+                  "value":""
+               }
+            ]
+         }
+      },
+      {
+         "name":"python-task-1",
+         "type":"python",
+         "parameters":{
+            "src":"test.py"
+         }
+      }
+   ]
+}
