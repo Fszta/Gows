@@ -32,18 +32,18 @@ func (dh *DagHandler) AddDag(dag *Dag) {
 }
 
 func (dh *DagHandler) RemoveDag(dagUUID string) error {
-	fmt.Println("INFO: Try to remove dag", dagUUID)
+	fmt.Println("Try to remove dag", dagUUID)
 	if _, ok := dh.Dags[dagUUID]; ok {
 		dh.StopDagScheduling(dagUUID)
 		delete(dh.Dags, dagUUID)
-		fmt.Println("INFO: Successfully remove dag", dagUUID)
+		fmt.Println("Successfully remove dag", dagUUID)
 		return nil
 	}
 	return fmt.Errorf("Dag %v not found", dagUUID)
 }
 
 func (dh *DagHandler) StopDagScheduling(dagUUID string) error {
-	fmt.Println("INFO: Try to stop scheduling for dag", dagUUID)
+	fmt.Println("Try to stop scheduling for dag", dagUUID)
 	if _, ok := dh.Dags[dagUUID]; ok {
 		dh.Dags[dagUUID].DagScheduler.stop()
 		return nil
@@ -52,7 +52,7 @@ func (dh *DagHandler) StopDagScheduling(dagUUID string) error {
 }
 
 func (dh *DagHandler) StartDagScheduling(dagUUID string) error {
-	fmt.Println("INFO: Try to start scheduling for dag", dagUUID)
+	fmt.Println("Try to start scheduling for dag", dagUUID)
 	if _, ok := dh.Dags[dagUUID]; ok {
 		dh.Dags[dagUUID].DagScheduler.RunScheduler()
 		return nil
@@ -76,10 +76,10 @@ func (dh *DagHandler) ListDag() []DagInfo {
 
 func (dh *DagHandler) TriggerDag(dagUUID string) error {
 	if _, ok := dh.Dags[dagUUID]; ok {
-		fmt.Println("INFO: Trigger dag", dagUUID)
+		fmt.Println("Trigger dag", dagUUID)
 
 		if dh.Dags[dagUUID].DagScheduler.isScheduled {
-			fmt.Printf("WARN: Dag %v has been triggered while already scheduled \n", dagUUID)
+			fmt.Printf("Dag %v has been triggered while already scheduled \n", dagUUID)
 		}
 
 		dh.Dags[dagUUID].Run()
@@ -90,7 +90,7 @@ func (dh *DagHandler) TriggerDag(dagUUID string) error {
 
 func (dh *DagHandler) GetDagTasks(dagUUID string) ([]TaskInfo, error) {
 	if _, ok := dh.Dags[dagUUID]; ok {
-		fmt.Println("INFO: Retrieve tasks list from dag", dagUUID)
+		fmt.Println("Retrieve tasks list from dag", dagUUID)
 
 		tasks := dh.Dags[dagUUID].GetAllTasks()
 

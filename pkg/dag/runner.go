@@ -28,7 +28,7 @@ func (d *Dag) Run() {
 	for {
 		if len(remainingTasks) == 0 && d.allTaskCompleted() {
 			d.setStatus()
-			fmt.Println("INFO: Dag ended at ", time.Now())
+			fmt.Println("Dag ended at ", time.Now())
 			break
 		}
 

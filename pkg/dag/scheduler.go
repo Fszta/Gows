@@ -19,7 +19,7 @@ func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
 	c := cron.New()
 
 	c.AddFunc(cronFormat, func() {
-		fmt.Println("INFO: Start dag", dag.name, "at", time.Now())
+		fmt.Printf("Start dag %v at %v \n", dag.name, time.Now())
 		dag.Run()
 	})
 
@@ -33,7 +33,7 @@ func NewScheduler(dag *Dag, cronFormat string) *DagScheduler {
 func (s *DagScheduler) RunScheduler() error {
 	fmt.Println("Start scheduler ", time.Now())
 	if s == nil {
-		return errors.New("ERROR: scheduler is not properly set")
+		return errors.New("Scheduler is not properly set")
 	}
 	s.isScheduled = true
 	s.cron.Start()
@@ -41,7 +41,7 @@ func (s *DagScheduler) RunScheduler() error {
 }
 
 func (s *DagScheduler) stop() {
-	fmt.Println("INFO: Stop dag at ", time.Now())
+	fmt.Println("Stop dag at ", time.Now())
 	s.isScheduled = false
 	s.cron.Stop()
 }

@@ -62,7 +62,7 @@ func GetDagFromConfig(config *DagConfig) (*Dag, error) {
 			operator.SetSrc(taskConfig.Parameters.Src)
 
 			newTask, err := task.CreateTask(operator, taskConfig.Name)
-			fmt.Printf("INFO: Add task %v to dag %v \n", taskConfig.Name, config.DagName)
+			fmt.Printf("Add task %v to dag %v \n", taskConfig.Name, config.DagName)
 
 			if err != nil {
 				return nil, err
@@ -79,7 +79,7 @@ func GetDagFromConfig(config *DagConfig) (*Dag, error) {
 			operator.SetCmd(taskConfig.Parameters.Cmd)
 
 			newTask, err := task.CreateTask(operator, taskConfig.Name)
-			fmt.Printf("INFO: Add task %v to dag %v \n", taskConfig.Name, config.DagName)
+			fmt.Printf("Add task %v to dag %v \n", taskConfig.Name, config.DagName)
 
 			if err != nil {
 				return nil, err

@@ -40,19 +40,19 @@ func CreateTask(operator operators.Operator, taskName string) (*Task, error) {
 }
 
 func (t *Task) Run(statusChannel chan TaskStatus) error {
-	fmt.Printf("INFO: Start running %v\n", t.name)
+	fmt.Printf("Start running %v\n", t.name)
 	statusChannel <- TaskStatus{UUID: t.uuid, Status: runningStatus}
 
 	logs, err := t.Operator.RunTask()
 	if err != nil {
 		t.setLogs(err.Error())
-		fmt.Printf("ERROR: Task %v failed \n", t.name)
+		fmt.Printf("Task %v failed \n", t.name)
 		statusChannel <- TaskStatus{UUID: t.uuid, Status: failStatus}
 		return err
 	}
 
 	t.setLogs(logs)
-	fmt.Printf("INFO: Task %v successfully ended \n", t.name)
+	fmt.Printf("Task %v successfully ended \n", t.name)
 	statusChannel <- TaskStatus{UUID: t.uuid, Status: successStatus}
 
 	return nil
