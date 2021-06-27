@@ -18,7 +18,6 @@ func (d *Dag) RunTaskWithoutDependencies(tasks map[uuid.UUID]DagTask, statusChan
 }
 
 func (d *Dag) Run() {
-
 	statusChannel := make(chan task.TaskStatus)
 	remainingTasks := copyTasksMap(d.tasks)
 	aTaskFinish := false
@@ -28,8 +27,8 @@ func (d *Dag) Run() {
 
 	for {
 		if len(remainingTasks) == 0 && d.allTaskCompleted() {
-			// set dag status
 			d.setStatus()
+			fmt.Println("INFO: Dag ended at ", time.Now())
 			break
 		}
 
@@ -40,23 +39,11 @@ func (d *Dag) Run() {
 
 			if newTaskStatus.Status == SuccessStatus {
 				delete(remainingTasks, newTaskStatus.UUID)
-
-				if len(remainingTasks) == 0 {
-					fmt.Println("INFO: Dag ended at ", time.Now())
-					d.status = SuccessStatus
-					break
-				}
 			}
 
 			if newTaskStatus.Status == CancelStatus || newTaskStatus.Status == FailStatus {
 				delete(remainingTasks, newTaskStatus.UUID)
-
 				d.cancelDependenciesTask(remainingTasks, newTaskStatus.UUID, statusChannel)
-				if len(remainingTasks) == 0 {
-					fmt.Println("INFO: Dag ended at ", time.Now())
-					d.status = FailStatus
-					break
-				}
 			}
 		}
 
