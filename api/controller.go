@@ -123,3 +123,23 @@ func GetDagTasks(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(tasksJson)
 }
+
+func GetTaskLogs(w http.ResponseWriter, req *http.Request) {
+	uuid := req.FormValue("uuid")
+	if uuid == "" {
+		http.Error(w, "Missing uuid parameter", http.StatusBadRequest)
+	}
+
+	taskName := req.FormValue("name")
+	if taskName == "" {
+		http.Error(w, "Missing uuid parameter", http.StatusBadRequest)
+	}
+
+	logs, err := global.DagHandler.GetTaskLogs(uuid, taskName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Write([]byte(logs))
+}

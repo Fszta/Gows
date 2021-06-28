@@ -39,10 +39,10 @@ func (b *BashOperator) RunTask() (string, error) {
 	}
 
 	cmd := exec.Command("bash", "-c", b.cmd)
-	stdout, err := cmd.Output()
+	stdout, err := cmd.CombinedOutput()
 
 	if err != nil {
-		return "", errors.New("ERROR occured during the script execution")
+		return "", err
 	}
 	return string(stdout), nil
 }

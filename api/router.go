@@ -12,6 +12,7 @@ var (
 	TriggerDagRoute  = "/dag/trigger"
 	RestartDagRoute  = "/dag/restart"
 	GetDagTasksRoute = "/task/list"
+	GetTaskLogsRoute = "/task/logs"
 )
 
 func Routing() *mux.Router {
@@ -24,6 +25,7 @@ func Routing() *mux.Router {
 	router.HandleFunc(TriggerDagRoute, TriggerDag)
 	router.HandleFunc(RestartDagRoute, RestartDag)
 	router.HandleFunc(GetDagTasksRoute, GetDagTasks)
+	router.HandleFunc(GetTaskLogsRoute, GetTaskLogs)
 
 	return router
 }

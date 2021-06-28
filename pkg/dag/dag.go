@@ -2,6 +2,7 @@ package dag
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"com.github/Fszta/gows/pkg/task"
@@ -75,6 +76,17 @@ func (d *Dag) GetTask(key uuid.UUID) *task.Task {
 	return d.tasks[key].task
 }
 
+func (d *Dag) GetTaskByName(name string) (*task.Task, error) {
+	for _, task := range d.GetAllTasks() {
+		if task.GetName() == name {
+			return task, nil
+		}
+	}
+	return nil, errors.New(fmt.Sprintf("Fail to find task %s", name))
+}
+
+
+
 func (d *Dag) GetAllTasks() []*task.Task {
 	allTasks := make([]*task.Task, 0)
 	for _, taskItem := range d.tasks {
@@ -123,7 +135,7 @@ func (d *Dag) GetTaskStatus(taskName string) (string, error) {
 			return status, nil
 		}
 	}
-	return "", errors.New("Task %s doesn't exist")
+	return "", errors.New(fmt.Sprintf("Task %s doesn't exist", taskName))
 }
 
 func (d *Dag) GetUUID() uuid.UUID {

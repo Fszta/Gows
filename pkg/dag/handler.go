@@ -1,6 +1,7 @@
 package dag
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -112,4 +113,27 @@ func (dh *DagHandler) GetDagTasks(dagUUID string) ([]TaskInfo, error) {
 		return tasksInfo, nil
 	}
 	return nil, fmt.Errorf("Dag %v not found", dagUUID)
+}
+
+func (dh *DagHandler) GetTaskLogs(dagUUID string, taskName string) (string, error) {
+	if dag, ok := dh.Dags[dagUUID]; ok {
+		task, err := dag.GetTaskByName(taskName)
+		if err != nil {
+			return "", nil
+		}
+
+		return task.GetLogs(), nil
+	}
+	return "", errors.New(fmt.Sprintf("Dag %s not found", dagUUID))
+}
+
+func (d *Dag) GetTaskLogs(name string) (string, error) {
+	for _, dagTask := range d.tasks {
+		task := dagTask.task
+		if task.GetName() == name {
+			return task.GetLogs(), nil
+		}
+
+	}
+	return "", errors.New("Fail to find task")
 }
