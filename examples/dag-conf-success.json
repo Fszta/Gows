@@ -1,0 +1,31 @@
+{
+   "dagName":"example-2",
+   "schedule":"*/3 * * * * *",
+   "tasks":[
+      {
+         "name":"bash-task-1",
+         "type":"bash",
+         "parameters":{
+            "cmd":"ls -ah"
+         }
+      },
+      {
+         "name":"bash-task-2",
+         "type":"bash",
+         "parameters":{
+            "cmd":"echo 'toto'"
+         }
+      },
+      {
+         "name":"bash-task-3",
+         "type":"bash",
+         "parameters":{
+            "cmd":"sleep 2"
+         },
+         "dependencies":[
+            "bash-task-1",
+            "bash-task-2"
+         ]
+      }
+   ]
+}

@@ -1,9 +1,10 @@
 package dag
 
 import (
-	"gows/operators"
-	"gows/task"
 	"testing"
+
+	"com.github/Fszta/gows/pkg/operators"
+	"com.github/Fszta/gows/pkg/task"
 )
 
 func getTestingBashOperator() operators.Operator {

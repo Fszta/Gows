@@ -35,14 +35,14 @@ func (b *BashOperator) RunTask() (string, error) {
 	b.makeCmd()
 
 	if b.cmd == "" {
-		return "", errors.New("Error no bash code was found")
+		return "", errors.New("ERROR no bash code was found")
 	}
 
 	cmd := exec.Command("bash", "-c", b.cmd)
-	stdout, err := cmd.Output()
+	stdout, err := cmd.CombinedOutput()
 
 	if err != nil {
-		return "", errors.New("Error occured during the script execution")
+		return "", err
 	}
 	return string(stdout), nil
 }

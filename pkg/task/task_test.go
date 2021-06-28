@@ -1,8 +1,9 @@
 package task
 
 import (
-	"gows/operators"
 	"testing"
+
+	"com.github/Fszta/gows/pkg/operators"
 )
 
 func TestCreateTask(t *testing.T) {

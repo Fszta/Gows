@@ -1,7 +1,9 @@
 package task
 
 import (
-	"gows/operators"
+	"fmt"
+
+	"com.github/Fszta/gows/pkg/operators"
 
 	"github.com/google/uuid"
 )
@@ -21,6 +23,11 @@ type Task struct {
 	logs     string
 }
 
+type TaskStatus struct {
+	UUID   uuid.UUID
+	Status string
+}
+
 func CreateTask(operator operators.Operator, taskName string) (*Task, error) {
 	taskUUID := uuid.New()
 
@@ -32,19 +39,21 @@ func CreateTask(operator operators.Operator, taskName string) (*Task, error) {
 	}, nil
 }
 
-func (t *Task) Run(successChannel chan uuid.UUID, failChannel chan uuid.UUID) error {
+func (t *Task) Run(statusChannel chan TaskStatus) error {
+	fmt.Printf("Start running %v\n", t.name)
+	statusChannel <- TaskStatus{UUID: t.uuid, Status: runningStatus}
 
-	t.UpdateStatus(runningStatus)
 	logs, err := t.Operator.RunTask()
 	if err != nil {
 		t.setLogs(err.Error())
-		t.UpdateStatus(failStatus)
-		failChannel <- t.uuid
+		fmt.Printf("Task %v failed \n", t.name)
+		statusChannel <- TaskStatus{UUID: t.uuid, Status: failStatus}
 		return err
 	}
-	t.UpdateStatus(successStatus)
+
 	t.setLogs(logs)
-	successChannel <- t.uuid
+	fmt.Printf("Task %v successfully ended \n", t.name)
+	statusChannel <- TaskStatus{UUID: t.uuid, Status: successStatus}
 
 	return nil
 }

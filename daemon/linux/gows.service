@@ -1,0 +1,11 @@
+[Unit]
+Description=Gows daemon
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+ExecStart=/usr/local/bin/gows start
+
+[Install]
+WantedBy=multi-user.target
