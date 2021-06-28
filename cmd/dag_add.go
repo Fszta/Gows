@@ -11,10 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	name string
-	file string
-)
+var file string
 
 var addDagCmd = &cobra.Command{
 	Use:   "add",
@@ -47,8 +44,6 @@ var addDagCmd = &cobra.Command{
 }
 
 func init() {
-	addDagCmd.Flags().StringVarP(&name, "name", "n", "", "name of the dag")
-	addDagCmd.MarkFlagRequired("name")
 	addDagCmd.Flags().StringVarP(&file, "file", "f", "", "path of the json file describing dag")
 	addDagCmd.MarkFlagRequired("file")
 }
