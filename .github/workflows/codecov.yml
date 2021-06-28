@@ -16,3 +16,12 @@ jobs:
         run: go test -race -coverprofile=coverage.out -covermode=atomic
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash)
+      - name: Run coverage
+        run: go test  ./... -coverprofile=coverage.out -covermode=atomic  
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.out
+          flags: unittests
+          run: bash <(curl -s https://codecov.io/bash)
