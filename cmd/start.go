@@ -16,6 +16,7 @@ var startCmd = &cobra.Command{
 	Short: "Start gows daemon",
 	Run: func(cmd *cobra.Command, args []string) {
 		global.DagHandler = dag.NewHandler()
+		global.RetrieveDag()
 		api.Start()
 	},
 }
