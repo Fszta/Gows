@@ -12,6 +12,42 @@ Gows is an easy and super lightweight workflow management tool.
 There is no need for setting up databases and web applications, Gows only takes a couples of json configuration files and that is it.
 It is all that it takes to define your workflow DAGs.
 
+## Dag configuration
+Gows's dag are describe using a json file : 
+```json
+{
+   "dagName":"example-2",
+   "schedule":"*/3 * * * * *",
+   "tasks":[
+      {
+         "name":"bash-task-1",
+         "type":"bash",
+         "parameters":{
+            "cmd":"ls -ah"
+         }
+      },
+      {
+         "name":"bash-task-2",
+         "type":"bash",
+         "parameters":{
+            "cmd":"echo 'toto'"
+         }
+      },
+      {
+         "name":"bash-task-3",
+         "type":"bash",
+         "parameters":{
+            "cmd":"sleep 2"
+         },
+         "dependencies":[
+            "bash-task-1",
+            "bash-task-2"
+         ]
+      }
+   ]
+}
+```
+
 ## Package
 Gows core package can be used without gows cli : 
  
