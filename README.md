@@ -1,4 +1,4 @@
-# Gows
+# Gows - A Golang Workflow Scheduler
 
 <img src="assets/gows.png" width="15%"/>
 
