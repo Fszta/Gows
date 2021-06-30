@@ -1,6 +1,6 @@
 # Gows
 
-<img src="images/output/gows.png" width="15%"/>
+<img src="assets/gows.png" width="15%"/>
 
 [![Go](https://github.com/Software-Craft-Factory/Gows/actions/workflows/go.yml/badge.svg)](https://github.com/Software-Craft-Factory/Gows/actions/workflows/go.yml)
 
