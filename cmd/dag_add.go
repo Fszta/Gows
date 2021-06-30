@@ -17,7 +17,7 @@ var addDagCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a new dag from json file",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Add dag from file %v at %v \n", file, time.Now().String())
+		fmt.Printf("Try to add dag from file %v at %v \n", file, time.Now().String())
 
 		response, err := http.Get("http://localhost:2128" + api.AddDagRoute + "?file=" + file)
 		if err != nil {
@@ -39,6 +39,10 @@ var addDagCmd = &cobra.Command{
 
 		if response.StatusCode == http.StatusNotAcceptable {
 			fmt.Printf("File %v is not properly structured, %v \n", file, string(responseMessage))
+		}
+
+		if response.StatusCode == http.StatusBadRequest {
+			fmt.Printf("Dag name already exists in database")
 		}
 	},
 }

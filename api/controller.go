@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"com.github/Fszta/gows/database"
 	"com.github/Fszta/gows/global"
 	"com.github/Fszta/gows/pkg/dag"
 )
@@ -17,6 +18,7 @@ func AddDag(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Missing file parameter", http.StatusBadRequest)
 	}
 
+	// Read dag configuration from json file
 	dagConfigJson, err := dag.ReadDagConfig(dagConfigFile)
 
 	if err != nil {
@@ -27,10 +29,11 @@ func AddDag(w http.ResponseWriter, req *http.Request) {
 	config, err := dag.UnmarshalDagConfig(dagConfigJson)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotAcceptable)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Create Dag from configuration
 	dag, err := dag.GetDagFromConfig(config)
 
 	if err != nil {
@@ -38,8 +41,23 @@ func AddDag(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// Try to add dag to database
+	client, err := database.NewClient()
+	if err != nil {
+		http.Error(w, "Fail to open connect to database", http.StatusInternalServerError)
+	}
+	defer client.Close()
+
+	dagUUID := dag.GetUUID().String()
+
+	// Store Dag to database
+	err = client.SaveDagConfig(config)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	global.DagHandler.AddDag(dag)
-	global.DagHandler.Dags[dag.GetUUID().String()].DagScheduler.RunScheduler()
+	global.DagHandler.Dags[dagUUID].DagScheduler.RunScheduler()
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -63,7 +81,17 @@ func RemoveDag(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Missing uuid parameter", http.StatusBadRequest)
 	}
 
-	err := global.DagHandler.RemoveDag(uuid)
+	// Init connection to database
+	client, err := database.NewClient()
+	if err != nil {
+		http.Error(w, "Fail to open connect to database", http.StatusInternalServerError)
+	}
+	defer client.Close()
+
+	// Remove dag from database
+	client.RemoveDag(uuid)
+
+	err = global.DagHandler.RemoveDag(uuid)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 	}
