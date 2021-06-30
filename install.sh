@@ -22,8 +22,8 @@ if [[ "$os_plateform" == "OSX" ]]; then
         launchctl unload ~/Library/LaunchAgents/com.gows.daemon.plist
     fi
 
-    # Give permission on gows's log dir 
-    sudo sh -c "mkdir -p /var/log/gows ; chown -R $USER: /var/log/gows"
+    # Give permission on gows's log dir & application dir
+    sudo sh -c "mkdir -p /var/log/gows ; chown -R $USER: /var/log/gows; mkdir -p /var/lib/gows;  chown -R $USER: /var/lib/gows"
     touch /var/log/gows/stdout.log /var/log/gows/stderr.log    
     
     # Add gows daemon to launchctl
